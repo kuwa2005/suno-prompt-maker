@@ -260,6 +260,13 @@ upload_with_lftp() {
     for f in "${UPLOAD_FILES[@]}"; do
       printf ' --include %q' "$f"
     done
+    # .git ディレクトリとその他の不要ファイルを除外
+    printf ' --exclude %q' '.git/'
+    printf ' --exclude %q' '*.sh'
+    printf ' --exclude %q' '*.md'
+    printf ' --exclude %q' 'test.html'
+    printf ' --exclude %q' 'deploy.env'
+    printf ' --exclude %q' 'node_modules/'
     # それ以外はすべて除外
     printf ' --exclude %q' '*'
     printf ' %q %q\n' "${SCRIPT_DIR}/" "${REMOTE_PATH}/"
