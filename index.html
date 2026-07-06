@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Suno Prompt Maker</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            bg: 'var(--bg)',
+            surface: 'var(--surface)',
+            surface2: 'var(--surface2)',
+            border: 'var(--border)',
+            text: 'var(--text)',
+            'text-dim': 'var(--text-dim)',
+            accent: 'var(--accent)',
+            'accent-hover': 'var(--accent-hover)',
+            danger: 'var(--danger)',
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-bg text-text min-h-screen leading-relaxed transition-colors duration-200">
+  <!-- ヘッダー -->
+  <header class="sticky top-0 z-50 bg-bg border-b border-border px-6 py-4">
+    <div class="flex justify-between items-center mb-3">
+      <h1 class="text-xl font-bold">Suno Prompt Maker</h1>
+      <button id="theme-toggle" class="w-9 h-9 rounded-full border border-border flex items-center justify-center cursor-pointer text-xl hover:border-accent hover:text-accent transition-all" aria-label="テーマ切替">
+        <span class="icon-bulb-on">&#9728;</span>
+        <span class="icon-bulb-off" style="display:none;">&#9790;</span>
+      </button>
+    </div>
+    <nav class="flex gap-1">
+      <button class="tab active px-4 py-2 rounded-md text-sm transition-all" data-tab="create">プロンプト作成</button>
+      <button class="tab px-4 py-2 rounded-md text-sm transition-all" data-tab="templates">テンプレート</button>
+      <button class="tab px-4 py-2 rounded-md text-sm transition-all" data-tab="history">履歴</button>
+    </nav>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-6 py-6">
+    <!-- プロンプト作成タブ -->
+    <section id="tab-create" class="tab-content active">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <!-- メインプロンプト -->
+        <div class="col-span-full">
+          <label for="extra" class="block text-sm text-text-dim mb-1">メインプロンプト</label>
+          <textarea id="extra" rows="4" placeholder="自由に追加の指示を入力..." class="w-full bg-surface border border-border text-text px-3 py-2.5 rounded-md text-sm resize-y transition-colors focus:outline-none focus:border-accent"></textarea>
+        </div>
+
+        <!-- 要素の割合 -->
+        <div class="col-span-full">
+          <label class="block text-sm text-text-dim mb-1">要素の割合</label>
+          <div id="weight-panel" class="bg-surface border border-border rounded-lg p-4 grid grid-cols-1 md:grid-cols-2 gap-2.5 transition-colors"></div>
+        </div>
+
+        <!-- 最大文字数 -->
+        <div class="col-span-full">
+          <label class="block text-sm text-text-dim mb-1">最大文字数</label>
+          <div class="flex items-center gap-3">
+            <input type="range" id="w-charlimit" min="100" max="1000" step="100" value="1000" class="flex-1">
+            <span id="w-charlimit-val" class="text-accent font-semibold tabular-nums">1000</span>
+          </div>
+        </div>
+
+        <!-- 生成ボタン -->
+        <div class="col-span-full">
+          <button id="btn-generate" class="bg-accent text-white px-6 py-2.5 rounded-md text-sm font-medium hover:bg-accent-hover transition-colors">プロンプトを生成</button>
+        </div>
+
+        <!-- 出力エリア -->
+        <div id="output-area" class="col-span-full hidden mt-6">
+          <div class="flex justify-between items-center mb-3">
+            <h3 class="text-sm text-text-dim">生成されたプロンプト</h3>
+            <div class="flex items-center gap-2">
+              <button id="btn-copy" class="bg-surface2 border border-border rounded w-7 h-7 flex items-center justify-center cursor-pointer hover:bg-accent hover:border-accent hover:text-white transition-all" title="コピー">&#128203;</button>
+              <button id="btn-save" class="bg-surface2 border border-border rounded w-7 h-7 flex items-center justify-center cursor-pointer text-xs hover:bg-accent hover:border-accent hover:text-white transition-all" title="履歴に保存">&#128190;</button>
+              <span id="char-count" class="text-xs text-text-dim tabular-nums"></span>
+            </div>
+          </div>
+          <div id="prompt-output" class="bg-bg border border-border rounded-md p-4 text-sm leading-7 whitespace-pre-wrap break-words min-h-20"></div>
+        </div>
+
+        <!-- コメント入力ダイアログ -->
+        <dialog id="comment-dialog" class="bg-surface border border-border rounded-lg p-6 text-text min-w-80">
+          <div class="mb-4">
+            <label class="block text-sm mb-1">コメント（任意）</label>
+            <input type="text" id="history-comment" placeholder="どんな曲だったかメモ" class="w-full bg-surface2 border border-border text-text px-3 py-2 rounded-md text-sm">
+          </div>
+          <div class="flex gap-2 justify-end">
+            <button id="btn-dialog-cancel" class="bg-surface2 text-text border border-border px-4 py-1.5 rounded text-xs">キャンセル</button>
+            <button id="btn-dialog-save" class="bg-accent text-white px-4 py-1.5 rounded text-xs">保存</button>
+          </div>
+        </dialog>
+
+        <!-- ランダム設定確認ダイアログ -->
+        <dialog id="random-confirm-dialog" class="bg-surface border border-border rounded-lg p-6 text-text min-w-72">
+          <p class="mb-5">割合をランダムに設定しますか？</p>
+          <div class="flex gap-2 justify-end">
+            <button id="btn-random-ok" class="bg-accent text-white px-4 py-1.5 rounded text-xs">はい</button>
+            <button id="btn-random-cancel" class="bg-surface2 text-text border border-border px-4 py-1.5 rounded text-xs">いいえ</button>
+          </div>
+        </dialog>
+
+        <!-- リセット確認ダイアログ -->
+        <dialog id="reset-confirm-dialog" class="bg-surface border border-border rounded-lg p-6 text-text min-w-72">
+          <p class="mb-5">全カテゴリを0%にリセットしますか？</p>
+          <div class="flex gap-2 justify-end">
+            <button id="btn-reset-ok" class="bg-accent text-white px-4 py-1.5 rounded text-xs">はい</button>
+            <button id="btn-reset-cancel" class="bg-surface2 text-text border border-border px-4 py-1.5 rounded text-xs">いいえ</button>
+          </div>
+        </dialog>
+
+        <!-- 要素候補詳細 -->
+        <div class="col-span-full">
+          <h3 class="text-base font-bold mb-3">要素候補詳細</h3>
+          <div id="tag-sections"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- テンプレートタブ -->
+    <section id="tab-templates" class="tab-content">
+      <div id="template-list" class="flex flex-col gap-3"></div>
+    </section>
+
+    <!-- 履歴タブ -->
+    <section id="tab-history" class="tab-content">
+      <div class="mb-4">
+        <button id="btn-clear-history" class="bg-danger text-white px-4 py-1.5 rounded text-xs">履歴を全削除</button>
+      </div>
+      <div id="history-list" class="flex flex-col gap-3"></div>
+    </section>
+  </main>
+
+  <!-- トースト -->
+  <div id="toast-container" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999] flex flex-col gap-2 items-center"></div>
+
+  <!-- 上へ戻るボタン -->
+  <button id="scroll-top" class="fixed bottom-8 right-8 w-12 h-12 rounded-full border-none bg-accent text-white text-xl cursor-pointer shadow-lg hover:bg-accent-hover hover:-translate-y-0.5 transition-all z-[1000] hidden" aria-label="上へ戻る">&#9650;</button>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

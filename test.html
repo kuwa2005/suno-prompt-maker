@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Suno Prompt Maker - Tests</title>
+  <style>
+    body { font-family: monospace; background: #1a1a2e; color: #e0e0e8; padding: 2rem; }
+    h1 { font-size: 1.2rem; margin-bottom: 1rem; }
+    .suite { margin-bottom: 1.5rem; }
+    .suite-name { font-weight: bold; color: #7c5cff; margin-bottom: 0.5rem; }
+    .test { padding: 0.3rem 0; }
+    .pass { color: #4caf50; }
+    .fail { color: #ff5c5c; }
+    #summary { margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #2e2e3e; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>Suno Prompt Maker - テスト結果</h1>
+  <div id="results"></div>
+  <div id="summary"></div>
+
+  <script src="data.js"></script>
+  <script>
+    const results = document.getElementById('results');
+    const summary = document.getElementById('summary');
+    let total = 0, passed = 0, failed = 0;
+
+    function assert(condition, msg) {
+      total++;
+      if (condition) { passed++; return true; }
+      failed++;
+      return false;
+    }
+
+    function test(name, fn) {
+      const div = document.createElement('div');
+      div.className = 'test';
+      try {
+        fn();
+        div.className = 'test pass';
+        div.textContent = '  ✓ ' + name;
+      } catch (e) {
+        div.className = 'test fail';
+        div.textContent = '  ✗ ' + name + ' - ' + e.message;
+      }
+      return div;
+    }
+
+    function suite(name, tests) {
+      const div = document.createElement('div');
+      div.className = 'suite';
+      const h = document.createElement('div');
+      h.className = 'suite-name';
+      h.textContent = name;
+      div.appendChild(h);
+      tests.forEach(t => div.appendChild(t));
+      results.appendChild(div);
+    }
+
+    // ============================================================
+    // ユニットテスト
+    // ============================================================
+
+    suite('PROMPT_DATA データ定義', [
+      test('genres配列が存在する', () => {
+        if (!Array.isArray(PROMPT_DATA.genres)) throw new Error('genres not array');
+      }),
+      test('genresに500以上のアイテムがある', () => {
+        if (PROMPT_DATA.genres.length < 500) throw new Error('genres has ' + PROMPT_DATA.genres.length + ' items');
+      }),
+      test('techniques配列が存在する', () => {
+        if (!Array.isArray(PROMPT_DATA.techniques)) throw new Error('techniques not array');
+      }),
+      test('techniquesに100以上のアイテムがある', () => {
+        if (PROMPT_DATA.techniques.length < 100) throw new Error('techniques has ' + PROMPT_DATA.techniques.length + ' items');
+      }),
+      test('instruments配列が存在する', () => {
+        if (!Array.isArray(PROMPT_DATA.instruments)) throw new Error('instruments not array');
+      }),
+      test('lfo配列が存在する', () => {
+        if (!Array.isArray(PROMPT_DATA.lfo)) throw new Error('lfo not array');
+      }),
+      test('lfoに100以上のアイテムがある', () => {
+        if (PROMPT_DATA.lfo.length < 100) throw new Error('lfo has ' + PROMPT_DATA.lfo.length + ' items');
+      }),
+      test('synth配列が存在する', () => {
+        if (!Array.isArray(PROMPT_DATA.synth)) throw new Error('synth not array');
+      }),
+      test('synthに100以上のアイテムがある', () => {
+        if (PROMPT_DATA.synth.length < 100) throw new Error('synth has ' + PROMPT_DATA.synth.length + ' items');
+      }),
+      test('styles配列が存在する', () => {
+        if (!Array.isArray(PROMPT_DATA.styles)) throw new Error('styles not array');
+      }),
+      test('moods配列が存在する', () => {
+        if (!Array.isArray(PROMPT_DATA.moods)) throw new Error('moods not array');
+      }),
+      test('tempos配列が存在する', () => {
+        if (!Array.isArray(PROMPT_DATA.tempos)) throw new Error('tempos not array');
+      }),
+      test('全カテゴリに重複アイテムがない', () => {
+        for (const key of Object.keys(PROMPT_DATA)) {
+          const arr = PROMPT_DATA[key];
+          const set = new Set(arr);
+          if (set.size !== arr.length) throw new Error(key + ' has duplicates');
+        }
+      }),
+    ]);
+
+    suite('TEMPLATES テンプレート定義', [
+      test('TEMPLATES配列が存在する', () => {
+        if (!Array.isArray(TEMPLATES)) throw new Error('TEMPLATES not array');
+      }),
+      test('テンプレートは5個以上ある', () => {
+        if (TEMPLATES.length < 5) throw new Error('only ' + TEMPLATES.length + ' templates');
+      }),
+      test('各テンプレートにname, description, promptがある', () => {
+        TEMPLATES.forEach((t, i) => {
+          if (!t.name) throw new Error('template ' + i + ' missing name');
+          if (!t.description) throw new Error('template ' + i + ' missing description');
+          if (!t.prompt) throw new Error('template ' + i + ' missing prompt');
+        });
+      }),
+    ]);
+
+    // ============================================================
+    // 結合テスト（ブラウザ環境でDOM操作をテスト）
+    // ============================================================
+
+    // index.htmlを読み込むiframeでテスト
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    iframe.src = 'index.html';
+    document.body.appendChild(iframe);
+
+    iframe.onload = () => {
+      const win = iframe.contentWindow;
+      const doc = iframe.contentDocument;
+
+      suite('DOM 存在チェック', [
+        test('ヘッダーが存在する', () => {
+          if (!doc.querySelector('header')) throw new Error('header missing');
+        }),
+        test('メインプロンプト入力欄が存在する', () => {
+          if (!doc.getElementById('extra')) throw new Error('extra missing');
+        }),
+        test('プロンプトを生成ボタンが存在する', () => {
+          if (!doc.getElementById('btn-generate')) throw new Error('btn-generate missing');
+        }),
+        test('ジャンルセレクトが存在する', () => {
+          if (!doc.getElementById('genre-select')) throw new Error('genre-select missing');
+        }),
+        test('スタイルセレクトが存在する', () => {
+          if (!doc.getElementById('style-select')) throw new Error('style-select missing');
+        }),
+        test('ムードセレクトが存在する', () => {
+          if (!doc.getElementById('mood-select')) throw new Error('mood-select missing');
+        }),
+        test('テンポセレクトが存在する', () => {
+          if (!doc.getElementById('tempo-select')) throw new Error('tempo-select missing');
+        }),
+        test('楽器セレクトが存在する', () => {
+          if (!doc.getElementById('instrument-select')) throw new Error('instrument-select missing');
+        }),
+        test('演奏記法セレクトが存在する', () => {
+          if (!doc.getElementById('technique-select')) throw new Error('technique-select missing');
+        }),
+        test('LFOセレクトが存在する', () => {
+          if (!doc.getElementById('lfo-select')) throw new Error('lfo-select missing');
+        }),
+        test('シンセ音色セレクトが存在する', () => {
+          if (!doc.getElementById('synth-select')) throw new Error('synth-select missing');
+        }),
+        test('出力エリアが存在する', () => {
+          if (!doc.getElementById('output-area')) throw new Error('output-area missing');
+        }),
+        test('コメントダイアログが存在する', () => {
+          if (!doc.getElementById('comment-dialog')) throw new Error('comment-dialog missing');
+        }),
+        test('テーマ切替ボタンが存在する', () => {
+          if (!doc.getElementById('theme-toggle')) throw new Error('theme-toggle missing');
+        }),
+      ]);
+
+      suite('ウエイトスライダー', [
+        test('ジャンルスライダーのデフォルト値は50', () => {
+          if (doc.getElementById('w-genre').value !== '50') throw new Error('value is ' + doc.getElementById('w-genre').value);
+        }),
+        test('演奏記法スライダーのデフォルト値は25', () => {
+          if (doc.getElementById('w-technique').value !== '25') throw new Error('value is ' + doc.getElementById('w-technique').value);
+        }),
+        test('楽器スライダーのデフォルト値は25', () => {
+          if (doc.getElementById('w-instrument').value !== '25') throw new Error('value is ' + doc.getElementById('w-instrument').value);
+        }),
+        test('最大文字数スライダーのデフォルト値は1000', () => {
+          if (doc.getElementById('w-charlimit').value !== '1000') throw new Error('value is ' + doc.getElementById('w-charlimit').value);
+        }),
+      ]);
+
+      suite('ランダム生成機能', [
+        test('プロンプトを生成ボタンで出力エリアが表示される', () => {
+          doc.getElementById('btn-generate').click();
+          const area = doc.getElementById('output-area');
+          if (area.style.display === 'none') throw new Error('output area hidden');
+        }),
+        test('プロンプトが生成される', () => {
+          doc.getElementById('btn-generate').click();
+          const output = doc.getElementById('prompt-output').textContent;
+          if (!output || output.length === 0) throw new Error('empty output');
+        }),
+        test('生成結果が最大文字数以下である', () => {
+          doc.getElementById('w-genre').value = '50';
+          doc.getElementById('w-technique').value = '25';
+          doc.getElementById('w-instrument').value = '25';
+          doc.getElementById('btn-generate').click();
+          const output = doc.getElementById('prompt-output').textContent;
+          const max = parseInt(doc.getElementById('w-charlimit').value, 10);
+          if (output.length > max) throw new Error(output.length + ' > ' + max);
+        }),
+        test('メインプロンプトが先頭に挿入される', () => {
+          doc.getElementById('extra').value = 'テストプロンプト';
+          doc.getElementById('btn-generate').click();
+          const output = doc.getElementById('prompt-output').textContent;
+          if (!output.startsWith('テストプロンプト')) throw new Error('starts with: ' + output.substring(0, 30));
+        }),
+        test('複数回生成で異なる結果になる', () => {
+          doc.getElementById('extra').value = '';
+          doc.getElementById('btn-generate').click();
+          const a = doc.getElementById('prompt-output').textContent;
+          doc.getElementById('btn-generate').click();
+          const b = doc.getElementById('prompt-output').textContent;
+          // 同一である可能性は極めて低い
+          if (a === b) throw new Error('same result twice');
+        }),
+      ]);
+
+      suite('文字数カウンター', [
+        test('文字数が表示される', () => {
+          doc.getElementById('btn-generate').click();
+          const count = doc.getElementById('char-count').textContent;
+          if (!count.includes('/')) throw new Error('no / in count: ' + count);
+        }),
+      ]);
+
+      suite('テーマ切替', [
+        test('デフォルトはライトモード', () => {
+          if (doc.body.classList.contains('dark')) throw new Error('default is dark');
+        }),
+        test('クリックでダークモードに切り替わる', () => {
+          doc.getElementById('theme-toggle').click();
+          if (!doc.body.classList.contains('dark')) throw new Error('not dark after click');
+          doc.getElementById('theme-toggle').click(); // 元に戻す
+        }),
+      ]);
+
+      suite('タブ切替', [
+        test('テンプレートタブに切り替わる', () => {
+          doc.querySelector('[data-tab="templates"]').click();
+          const tplTab = doc.getElementById('tab-templates');
+          if (!tplTab.classList.contains('active')) throw new Error('templates tab not active');
+          doc.querySelector('[data-tab="create"]').click(); // 元に戻す
+        }),
+        test('履歴タブに切り替わる', () => {
+          doc.querySelector('[data-tab="history"]').click();
+          const histTab = doc.getElementById('tab-history');
+          if (!histTab.classList.contains('active')) throw new Error('history tab not active');
+          doc.querySelector('[data-tab="create"]').click(); // 元に戻す
+        }),
+      ]);
+
+      suite('履歴機能', [
+        test('保存ボタンでダイアログが表示される', () => {
+          doc.getElementById('btn-generate').click();
+          doc.getElementById('btn-save').click();
+          const dialog = doc.getElementById('comment-dialog');
+          if (!dialog.open) throw new Error('dialog not open');
+          doc.getElementById('btn-dialog-cancel').click(); // 閉じる
+        }),
+        test('履歴に保存できる', () => {
+          doc.getElementById('btn-generate').click();
+          doc.getElementById('btn-save').click();
+          doc.getElementById('history-comment').value = 'テスト曲';
+          doc.getElementById('btn-dialog-save').click();
+          const history = JSON.parse(localStorage.getItem('suno_prompt_history') || '[]');
+          if (history.length === 0) throw new Error('history empty');
+          if (history[0].comment !== 'テスト曲') throw new Error('comment not saved');
+        }),
+      ]);
+
+      suite('メインプロンプトのcookie保存', [
+        test('メインプロンプトがcookieに保存される', () => {
+          doc.getElementById('extra').value = 'テストcookie';
+          doc.getElementById('extra').dispatchEvent(new Event('input'));
+          const cookies = document.cookie;
+          if (!cookies.includes('suno_extra=')) throw new Error('cookie not set');
+        }),
+      ]);
+
+      // サマリー表示
+      summary.textContent = total + ' テスト中: ' + passed + ' 合格, ' + failed + ' 不合格';
+      summary.style.color = failed > 0 ? '#ff5c5c' : '#4caf50';
+    };
+  </script>
+</body>
+</html>
