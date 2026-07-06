@@ -223,11 +223,18 @@
     const extra = document.getElementById('extra').value.trim();
 
     if (extra) parts.push(extra);
-    const shuffledIds = shuffle(WEIGHT_IDS);
-    for (const id of shuffledIds) {
+
+    // 全カテゴリの選択済みアイテムをフラットに集約
+    const allItems = [];
+    for (const id of WEIGHT_IDS) {
       const sel = SEL_MAP[id];
       const items = sel.getSelected();
-      if (items.length) parts.push(items.join(', '));
+      if (items.length) allItems.push(...items);
+    }
+
+    // フラットにした全アイテムをシャッフルしてから結合
+    if (allItems.length) {
+      parts.push(shuffle(allItems).join(', '));
     }
 
     const promptLine = parts.join(', ');
