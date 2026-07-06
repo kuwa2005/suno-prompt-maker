@@ -323,6 +323,7 @@
     const outputArea = document.getElementById('output-area');
     const outputEl = document.getElementById('prompt-output');
     outputEl.textContent = full;
+    outputArea.classList.remove('hidden');
     outputArea.style.display = '';
 
     // 文字数カウンター
