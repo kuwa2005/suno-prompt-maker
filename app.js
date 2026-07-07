@@ -579,4 +579,8 @@
   updateWeightLabels();
   renderTemplates();
   renderLyricTemplates();
+  
+  // グローバル変数として公開（AI反映機能用）
+  window.weightSliders = weightSliders;
+  window.updateWeightLabels = updateWeightLabels;
 })();

@@ -55,6 +55,19 @@
           <textarea id="extra" rows="4" placeholder="メインプロンプトを入力してください" class="w-full bg-surface border border-border text-text px-3 py-2.5 rounded-md text-sm resize-y transition-colors focus:outline-none focus:border-accent"></textarea>
         </div>
 
+        <!-- AI入力エリア -->
+        <div class="col-span-full">
+          <label class="block text-sm text-text-dim mb-1">AIイメージ入力</label>
+          <div class="flex gap-2">
+            <textarea id="ai-input" rows="2" 
+              placeholder="例：お洒落なカフェで流れるチルいアコースティック曲"
+              class="flex-1 bg-surface border border-border text-text px-3 py-2 rounded-md text-sm resize-none"></textarea>
+            <button id="btn-ai-set" class="bg-accent text-white px-4 rounded-md text-sm hover:bg-accent-hover transition-colors whitespace-nowrap">
+              AIで反映 ⚡️
+            </button>
+          </div>
+        </div>
+
         <!-- 要素の割合 -->
         <div class="col-span-full">
           <label class="block text-sm text-text-dim mb-1">要素の割合</label>
@@ -276,6 +289,7 @@
     import { initTernlight } from './ternlight-engine.js';
     import { buildTagIndex } from './tag-index.js';
     import { createSearchBox, filterTagElements } from './semantic-search.js';
+    import { autoSetWeights } from './auto-setter.js';
 
     function addSearchBoxes() {
       for (const [catId, cat] of Object.entries(CATEGORIES)) {
@@ -294,6 +308,17 @@
         await initTernlight();
         await buildTagIndex();
         addSearchBoxes();
+        
+        // AI反映ボタンのイベントハンドラ
+        document.getElementById('btn-ai-set').addEventListener('click', () => {
+          const input = document.getElementById('ai-input').value.trim();
+          if (!input) return;
+          
+          // weightSliders と updateWeightLabels は app.js のグローバル変数
+          autoSetWeights(input, window.weightSliders, window.updateWeightLabels);
+          showToast('AIで設定を反映しました');
+        });
+        
         console.log('AI features ready');
       } catch (error) {
         console.warn('AI features unavailable:', error);
