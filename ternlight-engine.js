@@ -1,6 +1,7 @@
 let isInitialized = false;
 let embedFn = null;
 let cosineSimFn = null;
+let fallbackMode = false;
 
 export async function initTernlight() {
   if (isInitialized) return;
@@ -12,8 +13,16 @@ export async function initTernlight() {
     isInitialized = true;
     console.log('ternlight initialized');
   } catch (error) {
-    console.error('Failed to initialize ternlight:', error);
-    throw error;
+    console.warn('ternlight unavailable, using fallback mode:', error);
+    fallbackMode = true;
+    embedFn = (text) => text.toLowerCase().split(/\s+/);
+    cosineSimFn = (a, b) => {
+      const setA = new Set(a);
+      const setB = new Set(b);
+      const intersection = [...setA].filter(x => setB.has(x));
+      return intersection.length / Math.max(setA.size, setB.size);
+    };
+    isInitialized = true;
   }
 }
 
@@ -29,4 +38,8 @@ export function cosineSimilarity(vecA, vecB) {
 
 export function isReady() {
   return isInitialized;
+}
+
+export function isFallbackMode() {
+  return fallbackMode;
 }

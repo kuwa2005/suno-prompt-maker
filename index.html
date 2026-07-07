@@ -46,6 +46,10 @@
   </header>
 
   <main class="max-w-7xl mx-auto px-6 py-6">
+    <!-- フォールバックモード通知 -->
+    <div id="fallback-notice" class="hidden mb-4 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-md text-sm text-yellow-600 dark:text-yellow-400">
+      AI機能はフォールバックモードで動作中です。意味検索の精度が低下します。
+    </div>
     <!-- プロンプト作成タブ -->
     <section id="tab-create" class="tab-content active">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -160,6 +164,11 @@
 
     <!-- 履歴タブ -->
     <section id="tab-history" class="tab-content">
+      <div class="mb-4">
+        <input type="text" id="history-search"
+          placeholder="🔍 履歴を検索（意味ベース）"
+          class="w-full bg-surface border border-border text-text px-3 py-2 rounded-md text-sm">
+      </div>
       <div class="mb-4">
         <button id="btn-clear-history" class="bg-danger text-white px-4 py-1.5 rounded text-xs">履歴を全削除</button>
       </div>
@@ -286,10 +295,11 @@
   <script src="app.js"></script>
   <script type="module" src="ternlight-engine.js"></script>
   <script type="module">
-    import { initTernlight } from './ternlight-engine.js';
+    import { initTernlight, isFallbackMode } from './ternlight-engine.js';
     import { buildTagIndex } from './tag-index.js';
     import { createSearchBox, filterTagElements } from './semantic-search.js';
     import { autoSetWeights } from './auto-setter.js';
+    import { searchHistory, buildHistoryIndex, clearHistoryIndex } from './history-search.js';
 
     function addSearchBoxes() {
       for (const [catId, cat] of Object.entries(CATEGORIES)) {
@@ -309,6 +319,10 @@
         await buildTagIndex();
         addSearchBoxes();
         
+        if (isFallbackMode()) {
+          document.getElementById('fallback-notice').classList.remove('hidden');
+        }
+        
         // AI反映ボタンのイベントハンドラ
         document.getElementById('btn-ai-set').addEventListener('click', () => {
           const input = document.getElementById('ai-input').value.trim();
@@ -319,6 +333,20 @@
           showToast('AIで設定を反映しました');
         });
         
+        // 履歴検索のイベントハンドラ
+        document.getElementById('history-search').addEventListener('input', (e) => {
+          const query = e.target.value.trim();
+          const history = JSON.parse(localStorage.getItem('suno_prompt_history') || '[]');
+
+          if (query.length === 0) {
+            window.renderHistory();
+            return;
+          }
+
+          const results = searchHistory(query, history);
+          window.renderHistory(results.map(r => r.entry));
+        });
+
         console.log('AI features ready');
       } catch (error) {
         console.warn('AI features unavailable:', error);
