@@ -118,12 +118,20 @@
     const row = document.createElement('div');
     row.className = 'flex items-center gap-2.5';
     row.innerHTML =
-      '<span class="text-xs text-text-dim min-w-36 shrink-0" title="' + escapeHtml(tooltip) + '">' + escapeHtml(cat.label) + '</span>' +
+      '<span class="text-xs text-text-dim min-w-36 shrink-0 cursor-pointer hover:text-accent transition-colors" title="' + escapeHtml(tooltip) + '">' + escapeHtml(cat.label) + '</span>' +
       '<input type="range" id="w-' + id + '" min="0" max="100" value="' + cat.defaultWeight + '" class="flex-1">' +
       '<span class="text-xs text-accent min-w-10 text-right font-semibold tabular-nums" id="w-' + id + '-val">' + cat.defaultWeight + '%</span>';
     weightPanel.appendChild(row);
     weightSliders[id] = row.querySelector('input');
     weightValues[id] = row.querySelector('span:last-child');
+
+    // ラベルクリックで0%⇔100%切替
+    const label = row.querySelector('span:first-child');
+    label.addEventListener('click', () => {
+      const slider = weightSliders[id];
+      slider.value = slider.value === '0' ? '100' : '0';
+      updateWeightLabels();
+    });
 
     // タグセレクト生成
     const section = document.createElement('div');
