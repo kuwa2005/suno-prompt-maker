@@ -483,6 +483,44 @@
     });
   }
 
+  // --- Lyric Templates ---
+  function renderLyricTemplates() {
+    const list = document.getElementById('lyrics-list');
+    list.innerHTML = '';
+    if (typeof LYRIC_TEMPLATES === 'undefined') return;
+    LYRIC_TEMPLATES.forEach((tpl) => {
+      const card = document.createElement('div');
+      card.className = 'relative bg-surface border border-border rounded-lg p-4 cursor-pointer hover:border-accent transition-all';
+      card.innerHTML =
+        '<button class="card-copy-btn absolute top-2 right-2 bg-surface2 border border-border rounded w-7 h-7 flex items-center justify-center cursor-pointer hover:bg-accent hover:border-accent hover:text-white transition-all" title="コピー">&#128203;</button>' +
+        '<h4 class="text-sm font-bold mb-1">' + escapeHtml(tpl.name) + '</h4>' +
+        '<p class="text-xs text-text-dim mb-2">' + escapeHtml(tpl.description) + '</p>' +
+        '<pre class="text-xs text-text-dim bg-bg border border-border rounded p-2 whitespace-pre-wrap overflow-x-auto max-h-40">' + escapeHtml(tpl.structure) + '</pre>';
+      card.querySelector('.card-copy-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        navigator.clipboard.writeText(tpl.structure).then(() => {
+          showToast('コピーしました');
+        });
+      });
+      card.addEventListener('click', () => {
+        navigator.clipboard.writeText(tpl.structure).then(() => {
+          showToast('歌詞構造をコピーしました');
+        });
+      });
+      list.appendChild(card);
+    });
+  }
+
+  // --- Template Sub-tabs ---
+  document.querySelectorAll('.template-subtab').forEach((subtab) => {
+    subtab.addEventListener('click', () => {
+      document.querySelectorAll('.template-subtab').forEach((t) => t.classList.remove('active'));
+      document.querySelectorAll('.template-subtab-content').forEach((c) => c.classList.remove('active'));
+      subtab.classList.add('active');
+      document.getElementById('subtab-' + subtab.dataset.subtab).classList.add('active');
+    });
+  });
+
   // --- History ---
   function renderHistory() {
     const list = document.getElementById('history-list');
@@ -532,4 +570,5 @@
   // --- Initial ---
   updateWeightLabels();
   renderTemplates();
+  renderLyricTemplates();
 })();

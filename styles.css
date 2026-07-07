@@ -124,3 +124,7 @@ body.dark .char-count.near { color: #4caf50; }
   flex-wrap: wrap;
   gap: 0.4rem;
 }
+
+/* --- テンプレートサブタブ --- */
+.template-subtab-content { display: none; }
+.template-subtab-content.active { display: block; }

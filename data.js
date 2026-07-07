@@ -1937,3 +1937,57 @@ const TEMPLATES = [
     tags: { genre: 'J-Rock', style: 'Heavy', mood: 'Energetic', tempo: 'Upbeat (120-140 BPM)' },
   },
 ];
+
+// 歌詞構造テンプレート
+const LYRIC_TEMPLATES = [
+  {
+    name: '王道Aメロ-Bメロ-サビ',
+    description: '最も一般的なJ-POP構造',
+    structure: '[Aメロ]\n歌詞1行目\n歌詞2行目\n\n[Bメロ]\n歌詞1行目\n歌詞2行目\n\n[サビ]\n歌詞1行目\n歌詞2行目\n歌詞3行目\n\n[Aメロ]\n歌詞1行目\n歌詞2行目\n\n[Bメロ]\n歌詞1行目\n歌詞2行目\n\n[サビ]\n歌詞1行目\n歌詞2行目\n歌詞3行目\n\n[Cメロ（大サビ）]\n歌詞1行目\n歌詞2行目\n\n[サビ（繰り返し）]\n歌詞1行目\n歌詞2行目\n歌詞3行目',
+  },
+  {
+    name: 'verse-chorus形式',
+    description: '欧米ポップスの基本構造',
+    structure: '[Verse 1]\nLine 1\nLine 2\nLine 3\nLine 4\n\n[Pre-Chorus]\nLine 1\nLine 2\n\n[Chorus]\nLine 1\nLine 2\nLine 3\nLine 4\n\n[Verse 2]\nLine 1\nLine 2\nLine 3\nLine 4\n\n[Pre-Chorus]\nLine 1\nLine 2\n\n[Chorus]\nLine 1\nLine 2\nLine 3\nLine 4\n\n[Bridge]\nLine 1\nLine 2\n\n[Chorus]\nLine 1\nLine 2\nLine 3\nLine 4',
+  },
+  {
+    name: '16小節サビ',
+    description: 'EDM・ダンスミュージック向け',
+    structure: '[Intro]\n(Instrumental)\n\n[Verse 1]\nLine 1\nLine 2\n\n[Build-up]\nLine 1\nLine 2\n\n[Drop / Chorus]\n(No lyrics or minimal)\n\n[Verse 2]\nLine 1\nLine 2\n\n[Build-up]\nLine 1\nLine 2\n\n[Drop / Chorus]\n(No lyrics or minimal)\n\n[Breakdown]\nLine 1\n\n[Final Drop]\n(No lyrics or minimal)',
+  },
+  {
+    name: 'AABA形式',
+    description: '歌謡曲・クラシックポップス',
+    structure: '[A1]\n歌詞1行目\n歌詞2行目\n歌詞3行目\n歌詞4行目\n\n[A2]\n歌詞1行目\n歌詞2行目\n歌詞3行目\n歌詞4行目\n\n[B（サビ）]\n歌詞1行目\n歌詞2行目\n歌詞3行目\n歌詞4行目\n\n[A3]\n歌詞1行目\n歌詞2行目\n歌詞3行目\n歌詞4行目',
+  },
+  {
+    name: 'ラップ構造',
+    description: 'ヒップホップ・ラップ向け',
+    structure: '[Intro]\n(Hook)\n\n[Verse 1]\nBar 1\nBar 2\nBar 3\nBar 4\nBar 5\nBar 6\nBar 7\nBar 8\n\n[Hook]\nLine 1\nLine 2\n\n[Verse 2]\nBar 1\nBar 2\nBar 3\nBar 4\nBar 5\nBar 6\nBar 7\nBar 8\n\n[Hook]\nLine 1\nLine 2\n\n[Bridge]\nLine 1\nLine 2\n\n[Hook]\nLine 1\nLine 2',
+  },
+  {
+    name: 'サイケデリック展開',
+    description: 'サイケロック・エクスペリメンタル',
+    structure: '[Movement I]\nLyrics drift through\nconsciousness\n\n[Movement II]\nDeeper into the\nsoundscape\n\n[Movement III]\nColors bleeding\nthrough the noise\n\n[Movement IV]\nReturn to the surface\nbut changed',
+  },
+  {
+    name: 'プログレッシブ展開',
+    description: 'シンフォニック・プログレ向け',
+    structure: '[Part I: Awakening]\nStanza 1\nStanza 2\n\n[Part II: Journey]\nStanza 1\nStanza 2\nStanza 3\n\n[Part III: Climax]\nStanza 1\nStanza 2\n\n[Part IV: Resolution]\nStanza 1\nStanza 2',
+  },
+  {
+    name: 'ストーリーテリング',
+    description: '物語形式の歌詞構造',
+    structure: '[Chapter 1: 序章]\n導入の歌詞\n\n[Chapter 2: 展開]\n物語が展開\n\n[Chapter 3: 転機]\n何かが変わる\n\n[Chapter 4: 高潮]\nクライマックス\n\n[Chapter 5: 結末]\n物語の終わり',
+  },
+  {
+    name: 'コール＆レスポンス',
+    description: 'ライブ・ゴスペル向け',
+    structure: '[Call 1]\nLeader: 歌詞\nResponse: 歌詞\n\n[Call 2]\nLeader: 歌詞\nResponse: 歌詞\n\n[Call 3]\nLeader: 歌詞\nResponse: 歌詞\n\n[All Together]\n全員で歌詞',
+  },
+  {
+    name: 'ミニマル歌詞',
+    description: 'アンビエント・エレクトロニック向け',
+    structure: '[Section A]\nPhrase 1\n\n[Section B]\nPhrase 2\n\n[Section A]\nPhrase 1\n\n[Section C]\nPhrase 3\n\n[Section A]\nPhrase 1',
+  },
+];
