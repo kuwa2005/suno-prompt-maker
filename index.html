@@ -37,10 +37,11 @@
         <span class="icon-bulb-off" style="display:none;">&#9790;</span>
       </button>
     </div>
-    <nav class="flex gap-1">
+    <nav class="flex gap-1 flex-wrap">
       <button class="tab active px-4 py-2 rounded-md text-sm transition-all" data-tab="create">プロンプト作成</button>
       <button class="tab px-4 py-2 rounded-md text-sm transition-all" data-tab="templates">テンプレート</button>
       <button class="tab px-4 py-2 rounded-md text-sm transition-all" data-tab="history">履歴</button>
+      <button class="tab px-4 py-2 rounded-md text-sm transition-all" data-tab="about">このアプリについて</button>
     </nav>
   </header>
 
@@ -150,6 +151,115 @@
         <button id="btn-clear-history" class="bg-danger text-white px-4 py-1.5 rounded text-xs">履歴を全削除</button>
       </div>
       <div id="history-list" class="flex flex-col gap-3"></div>
+    </section>
+
+    <!-- このアプリについてタブ -->
+    <section id="tab-about" class="tab-content">
+      <div class="max-w-2xl mx-auto">
+        <h2 class="text-xl font-bold mb-6">このアプリについて</h2>
+
+        <!-- 概要 -->
+        <div class="mb-8">
+          <h3 class="text-lg font-semibold mb-3">概要</h3>
+          <p class="text-sm text-text-dim leading-relaxed">
+            Suno Prompt Maker は、Suno AI 向けのプロンプトメーカーです。
+            35カテゴリの音楽要素をランダムに組み合わせて、プロンプトを自動生成します。
+            ブラウザで動く静的Webアプリであり、サーバー不要で動作します。
+          </p>
+        </div>
+
+        <!-- 主な機能 -->
+        <div class="mb-8">
+          <h3 class="text-lg font-semibold mb-3">主な機能</h3>
+          <ul class="text-sm text-text-dim leading-relaxed list-disc list-inside space-y-1">
+            <li>35カテゴリの音楽要素をランダムに組み合わせたプロンプト生成</li>
+            <li>64テンプレート（プロンプト64種 + 歌詞構造15種）</li>
+            <li>重み付きラウンドロビンでカテゴリごとの出現割合を制御</li>
+            <li>履歴管理で過去のプロンプトを保存・呼び出し</li>
+            <li>ダーク/ライトモード対応</li>
+            <li>モバイルレスポンシブ対応</li>
+          </ul>
+        </div>
+
+        <!-- 使用技術 -->
+        <div class="mb-8">
+          <h3 class="text-lg font-semibold mb-3">使用技術</h3>
+          <table class="w-full text-sm text-text-dim">
+            <thead>
+              <tr class="border-b border-border">
+                <th class="text-left py-2">技術</th>
+                <th class="text-left py-2">ライセンス</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="border-b border-border">
+                <td class="py-2">HTML5</td>
+                <td class="py-2">標準仕様</td>
+              </tr>
+              <tr class="border-b border-border">
+                <td class="py-2">CSS3</td>
+                <td class="py-2">標準仕様</td>
+              </tr>
+              <tr class="border-b border-border">
+                <td class="py-2">JavaScript (vanilla)</td>
+                <td class="py-2">標準仕様</td>
+              </tr>
+              <tr class="border-b border-border">
+                <td class="py-2">Tailwind CSS</td>
+                <td class="py-2">MIT License</td>
+              </tr>
+              <tr>
+                <td class="py-2">ternlight</td>
+                <td class="py-2">MIT License</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- GitHub -->
+        <div class="mb-8">
+          <h3 class="text-lg font-semibold mb-3">GitHub</h3>
+          <a href="https://github.com/kuwa2005/suno-prompt-maker" target="_blank" rel="noopener noreferrer"
+            class="text-accent hover:text-accent-hover transition-colors text-sm">
+            https://github.com/kuwa2005/suno-prompt-maker
+          </a>
+        </div>
+
+        <!-- ライセンス -->
+        <div class="mb-8">
+          <h3 class="text-lg font-semibold mb-3">ライセンス</h3>
+          <p class="text-sm text-text-dim">
+            MIT License
+          </p>
+        </div>
+
+        <!-- プライバシーポリシー -->
+        <div class="mb-8">
+          <h3 class="text-lg font-semibold mb-3">プライバシーポリシー</h3>
+          <div class="text-sm text-text-dim leading-relaxed space-y-3">
+            <p>
+              このアプリケーションは、すべての処理をユーザーのブラウザ内で完結させています。
+              サーバーへのデータ送信は一切行いません。
+            </p>
+            <p>
+              <strong>収集する情報:</strong> このアプリは個人情報を収集しません。
+            </p>
+            <p>
+              <strong>ローカルストレージ:</strong> プロンプトの履歴とテーマ設定は、
+              ブラウザのローカルストレージに保存されます。このデータは您的のデバイス内にのみ存在し、
+              外部に送信されることはありません。
+            </p>
+            <p>
+              <strong>Cookie:</strong> メインプロンプトの入力内容は、利便性のためにCookieに保存されます。
+              このCookieは365日間有効です。
+            </p>
+            <p>
+              <strong>AI機能:</strong> ternlightを使用したAI機能は、すべてブラウザ内で完結します。
+              入力されたテキストが外部サーバーに送信されることはありません。
+            </p>
+          </div>
+        </div>
+      </div>
     </section>
   </main>
 
