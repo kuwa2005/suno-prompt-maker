@@ -275,11 +275,25 @@
   <script type="module">
     import { initTernlight } from './ternlight-engine.js';
     import { buildTagIndex } from './tag-index.js';
+    import { createSearchBox, filterTagElements } from './semantic-search.js';
+
+    function addSearchBoxes() {
+      for (const [catId, cat] of Object.entries(CATEGORIES)) {
+        const tagContainer = document.getElementById(catId + '-select');
+        if (!tagContainer) continue;
+
+        const searchBox = createSearchBox(catId, (results) => {
+          filterTagElements(tagContainer.querySelectorAll('.tag'), results);
+        });
+        tagContainer.parentElement.insertBefore(searchBox, tagContainer);
+      }
+    }
 
     async function initializeAI() {
       try {
         await initTernlight();
         await buildTagIndex();
+        addSearchBoxes();
         console.log('AI features ready');
       } catch (error) {
         console.warn('AI features unavailable:', error);

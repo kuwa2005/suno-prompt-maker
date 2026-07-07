@@ -77,7 +77,7 @@ input[type="range"]::-moz-range-thumb {
   border-radius: 20px;
   font-size: 0.8rem;
   user-select: none;
-  transition: background 0.15s, border-color 0.15s;
+  transition: background 0.15s, border-color 0.15s, opacity 0.2s, order 0.2s;
 }
 .tag.active {
   background: var(--tag-active);
