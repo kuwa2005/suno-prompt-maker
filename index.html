@@ -162,5 +162,21 @@
   <script src="data.js"></script>
   <script src="app.js"></script>
   <script type="module" src="ternlight-engine.js"></script>
+  <script type="module">
+    import { initTernlight } from './ternlight-engine.js';
+    import { buildTagIndex } from './tag-index.js';
+
+    async function initializeAI() {
+      try {
+        await initTernlight();
+        await buildTagIndex();
+        console.log('AI features ready');
+      } catch (error) {
+        console.warn('AI features unavailable:', error);
+      }
+    }
+
+    initializeAI();
+  </script>
 </body>
 </html>
