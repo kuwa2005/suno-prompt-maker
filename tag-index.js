@@ -1,10 +1,16 @@
 import { embedText, cosineSimilarity } from './ternlight-engine.js';
 
 let tagIndex = null;
+const CACHE_KEY = 'suno_tag_vectors';
 
 export async function buildTagIndex() {
-  const index = [];
+  const cached = sessionStorage.getItem(CACHE_KEY);
+  if (cached) {
+    tagIndex = JSON.parse(cached);
+    return tagIndex;
+  }
 
+  const index = [];
   for (const [catId, cat] of Object.entries(CATEGORIES)) {
     const items = PROMPT_DATA[cat.dataKey] || [];
     for (const item of items) {
@@ -12,12 +18,13 @@ export async function buildTagIndex() {
       index.push({
         category: catId,
         tag: item,
-        vector: vector
+        vector: Array.from(vector)
       });
     }
   }
 
   tagIndex = index;
+  sessionStorage.setItem(CACHE_KEY, JSON.stringify(index));
   return index;
 }
 
