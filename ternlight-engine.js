@@ -120,7 +120,14 @@ export async function initTernlight() {
     console.warn('ternlight unavailable, using fallback mode');
     fallbackMode = true;
 
-    embedFn = (text) => jpToEnTokens(text);
+    embedFn = (text) => {
+      // 英語テキストの場合は単語を直接返す
+      if (/[a-zA-Z]/.test(text) && !/[\u3040-\u309f\u30a0-\u30ff\u4e00-\u9faf]/.test(text)) {
+        return text.toLowerCase().split(/[\s,]+/).filter(w => w.length > 2);
+      }
+      // 日本語テキストの場合はマッピングを使用
+      return jpToEnTokens(text);
+    };
 
     cosineSimFn = (a, b) => {
       if (!a.length || !b.length) return 0;
