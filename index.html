@@ -35,54 +35,6 @@
           <textarea id="extra" rows="4" placeholder="メインプロンプトを入力してください" class="w-full bg-surface border border-border text-text px-3 py-2.5 rounded-md text-sm resize-y transition-colors focus:outline-none focus:border-accent"></textarea>
         </div>
 
-        <!-- AI入力エリア（非表示） -->
-        <div class="col-span-full hidden" id="ai-input-area">
-          <label class="block text-sm text-text-dim mb-1">AIイメージ入力</label>
-          <div class="flex gap-2">
-            <textarea id="ai-input" rows="2" 
-              placeholder="例：お洒落なカフェで流れるチルいアコースティック曲"
-              class="flex-1 bg-surface border border-border text-text px-3 py-2 rounded-md text-sm resize-none"></textarea>
-            <div class="flex flex-col gap-1">
-              <select id="ai-preset" class="bg-surface border border-border text-text px-2 py-1 rounded text-xs">
-                <option value="">プリセットを選択</option>
-                <option value="お洒落なカフェで流れるチルいアコースティック曲">カフェラウンジ</option>
-                <option value="踊りたくなる明るいダンスポップ、夏のパーティー">ダンスポップ</option>
-                <option value="映画のようなダークで壮大なオーケストラサウンド">シネマティックダーク</option>
-                <option value="80年代のレトロなシンセウェーブ、ネオンライト">シンセウェーブ</option>
-                <option value="素朴なアコースティックフォーク、指弾きギター">フォーク</option>
-                <option value="重厚で激しいヘヴィメタル、歪んだギター">ヘヴィメタル</option>
-                <option value="落ち着いたローファイヒップホップ、作業用ビート">ローファイ</option>
-                <option value="ムーディーなジャズ、スムーズなサックス">ジャズ</option>
-                <option value="可愛らしいカワイイフューチャーベース、明るいシンセ">カワイイ</option>
-                <option value="壮大なオーケストラ、フルシンフォニー、劇的">オーケストラ</option>
-                <option value="深いハウス、グルーヴィーなベースライン、クラブ">ハウス</option>
-                <option value="重い808、トラップビート、ダークな雰囲気">トラップ</option>
-                <option value="80年代日本のシティポップ、ファンキーなベース">シティポップ</option>
-                <option value="浮遊感のあるアンビエント、広がりのあるサウンド">アンビエント</option>
-                <option value="力強いロック、エレキギターリフ、ドライブ感">ロック</option>
-                <option value="高揚感のあるエレクトロダンス、シンセドロップ">EDM</option>
-                <option value="切ないピアノバラード、繊細なメロディ">ピアノバラード</option>
-                <option value="ゆったりしたレゲエ、オフビートギター、南国雰囲気">レゲエ</option>
-                <option value="ヒップホップ、ブーンバップ、グルーヴィーなビート">ヒップホップ</option>
-                <option value="トロピカルハウス、サニーな雰囲気、ビーチパーティー">トロピカル</option>
-                <option value="不気味なホラー、緊張感、ダークなドローン">ホラー</option>
-                <option value="ゲーム音楽、チップチューン、レトロシンセ">ゲーム音楽</option>
-                <option value="ゴスペル、コーラスハーモニー、力強いボーカル">ゴスペル</option>
-                <option value="ボサノバ、ナイロンギター、柔らかいボーカル">ボサノバ</option>
-                <option value="高速なドラムンベース、ブレイクビーツ、深みのあるベース">ドラムンベース</option>
-                <option value="キャッチーなシンセポップ、レトロフューチャー">シンセポップ</option>
-                <option value="優雅なワルツ、3拍子、オーケストラ">ワルツ</option>
-                <option value="アフロビート、ポリリズム、ファンキーなギター">アフロビート</option>
-                <option value="シューゲイザー、壁のようなギター、夢幻的なボーカル">シューゲイザー</option>
-                <option value="ミニマルテクノ、ヒプノティックなループ、ダーククラブ">テクノ</option>
-              </select>
-              <button id="btn-ai-set" class="bg-accent text-white px-4 py-1 rounded text-xs hover:bg-accent-hover transition-colors whitespace-nowrap">
-                AIで反映 ⚡️
-              </button>
-            </div>
-          </div>
-        </div>
-
         <!-- 要素の割合 -->
         <div class="col-span-full">
           <label class="block text-sm text-text-dim mb-1">要素の割合</label>
