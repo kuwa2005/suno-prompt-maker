@@ -193,17 +193,37 @@ function extractCategoriesFromEnText(enText) {
   const lower = enText.toLowerCase();
   const found = {};
 
-  for (const [catId, cat] of Object.entries(CATEGORIES)) {
-    const keywords = [
-      cat.name.toLowerCase(),
-      ...(cat.desc ? cat.desc.toLowerCase().split(/\s+/) : []),
-    ];
+  // カテゴリのキーワードリスト（カテゴリ固有のキーワード）
+  const categoryKeywords = {
+    'genre': ['pop', 'rock', 'jazz', 'electronic', 'dance', 'hip hop', 'r&b', 'country', 'folk', 'blues', 'classical', 'ambient', 'reggae', 'metal', 'punk', 'soul', 'funk', 'disco', 'house', 'techno', 'trance', 'dubstep', 'drum and bass', 'synthwave', 'city pop', 'lo-fi', 'bossa nova', 'samba', 'tango'],
+    'style': ['smooth', 'energetic', 'calm', 'aggressive', 'relaxed', 'upbeat', 'mellow', 'raw', 'polished', 'elegant', 'warm', 'cold', 'bright', 'dark', 'soft', 'heavy', 'light', 'minimal', 'maximal', 'organic', 'electronic', 'acoustic', 'electric', 'modern', 'retro', 'vintage', 'futuristic'],
+    'mood': ['happy', 'sad', 'dark', 'bright', 'melancholic', 'euphoric', 'peaceful', 'tense', 'romantic', 'nostalgic', 'dreamy', 'aggressive', 'mysterious', 'hopeful', 'anxious', 'calm', 'energetic', 'relaxed', 'intense', 'gentle'],
+    'instrument': ['guitar', 'piano', 'drums', 'bass', 'synthesizer', 'saxophone', 'trumpet', 'violin', 'cello', 'flute', 'organ', 'harp'],
+    'vocal': ['vocal', 'singing', 'voice', 'chorus', 'harmony', 'rap', 'whisper', 'falsetto', 'growl', 'scream'],
+    'tempo': ['fast', 'slow', 'mid-tempo', 'upbeat', 'downtempo', 'energetic', 'relaxed', 'driving', 'laid-back'],
+    'space': ['reverb', 'delay', 'echo', 'spacious', 'intimate', 'dry', 'wet', 'wide', 'narrow', 'stereo', 'mono'],
+    'structure': ['verse', 'chorus', 'bridge', 'intro', 'outro', 'build', 'drop', 'breakdown', 'drop'],
+    'density': ['sparse', 'dense', 'minimal', 'layered', 'thick', 'thin', 'full', 'open'],
+  };
 
+  // 各カテゴリのキーワードと一致数をカウント
+  for (const [catId, keywords] of Object.entries(categoryKeywords)) {
+    let matchCount = 0;
     for (const kw of keywords) {
-      if (kw.length >= 3 && lower.includes(kw)) {
-        if (!found[catId]) found[catId] = 0;
-        found[catId] += kw.length;
+      if (lower.includes(kw)) {
+        matchCount++;
       }
+    }
+    if (matchCount > 0) {
+      found[catId] = matchCount;
+    }
+  }
+
+  // カテゴリ名そのものが含まれている場合
+  for (const [catId, cat] of Object.entries(CATEGORIES)) {
+    if (lower.includes(cat.name.toLowerCase())) {
+      if (!found[catId]) found[catId] = 0;
+      found[catId] += 3; // カテゴリ名一致は高スコア
     }
   }
 
