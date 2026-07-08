@@ -381,7 +381,8 @@
           const input = document.getElementById('extra').value.trim();
           if (!input) return;
           
-          await autoSetWeights(input, window.weightSliders, window.updateWeightLabels);
+          // メインプロンプトから反映する場合はジャンルも含める
+          await autoSetWeights(input, window.weightSliders, window.updateWeightLabels, false);
           window.showToast('メインプロンプトからスライダーを設定しました');
         });
 
