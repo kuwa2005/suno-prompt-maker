@@ -5,9 +5,30 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Suno Prompt Maker</title>
   <link rel="icon" href="favicon.ico" type="image/x-icon">
-  <script type="module" src="/src/main.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            bg: 'var(--bg)',
+            surface: 'var(--surface)',
+            surface2: 'var(--surface2)',
+            border: 'var(--border)',
+            text: 'var(--text)',
+            'text-dim': 'var(--text-dim)',
+            accent: 'var(--accent)',
+            'accent-hover': 'var(--accent-hover)',
+            danger: 'var(--danger)',
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body class="bg-bg text-text min-h-screen leading-relaxed transition-colors duration-200">
   <!-- ヘッダー -->
   <header class="sticky top-0 z-50 bg-bg border-b border-border px-6 py-4">
     <div class="flex justify-between items-center mb-3">
@@ -100,21 +121,26 @@
 
         <!-- 要素候補詳細 -->
         <div class="col-span-full">
-          <h3 class="text-base font-bold mb-3">要素候補詳細</h3>
-          <div id="tag-sections"></div>
+          <details class="bg-surface border border-border rounded-lg">
+            <summary class="cursor-pointer px-4 py-3 font-bold text-base hover:bg-surface2 transition-colors">要素候補詳細</summary>
+            <div id="tag-sections" class="px-4 pb-4"></div>
+          </details>
         </div>
       </div>
     </section>
 
     <!-- テンプレートタブ -->
     <section id="tab-templates" class="tab-content">
+      <!-- テンプレート内サブタブ -->
       <div class="flex gap-1 mb-4">
         <button class="template-subtab active px-4 py-2 rounded-md text-sm transition-all" data-subtab="prompt">プロンプト</button>
         <button class="template-subtab px-4 py-2 rounded-md text-sm transition-all" data-subtab="lyrics">歌詞構造</button>
       </div>
+      <!-- プロンプトテンプレート -->
       <div id="subtab-prompt" class="template-subtab-content active">
         <div id="template-list" class="flex flex-col gap-3"></div>
       </div>
+      <!-- 歌詞構造テンプレート -->
       <div id="subtab-lyrics" class="template-subtab-content">
         <div id="lyrics-list" class="flex flex-col gap-3"></div>
       </div>
@@ -122,6 +148,11 @@
 
     <!-- 履歴タブ -->
     <section id="tab-history" class="tab-content">
+      <div class="mb-4">
+        <input type="text" id="history-search"
+          placeholder="🔍 履歴を検索（意味ベース）"
+          class="w-full bg-surface border border-border text-text px-3 py-2 rounded-md text-sm">
+      </div>
       <div class="mb-4">
         <button id="btn-clear-history" class="bg-danger text-white px-4 py-1.5 rounded text-xs">履歴を全削除</button>
       </div>
@@ -133,6 +164,7 @@
       <div class="max-w-2xl mx-auto">
         <h2 class="text-xl font-bold mb-6">このアプリについて</h2>
 
+        <!-- 概要 -->
         <div class="mb-8">
           <h3 class="text-lg font-semibold mb-3">概要</h3>
           <p class="text-sm text-text-dim leading-relaxed">
@@ -142,6 +174,7 @@
           </p>
         </div>
 
+        <!-- 主な機能 -->
         <div class="mb-8">
           <h3 class="text-lg font-semibold mb-3">主な機能</h3>
           <ul class="text-sm text-text-dim leading-relaxed list-disc list-inside space-y-1">
@@ -154,6 +187,7 @@
           </ul>
         </div>
 
+        <!-- 使用技術 -->
         <div class="mb-8">
           <h3 class="text-lg font-semibold mb-3">使用技術</h3>
           <table class="w-full text-sm text-text-dim">
@@ -180,11 +214,7 @@
                 <td class="py-2">Tailwind CSS</td>
                 <td class="py-2">MIT License</td>
               </tr>
-              <tr class="border-b border-border">
-                <td class="py-2">Vite</td>
-                <td class="py-2">MIT License</td>
-              </tr>
-              <tr class="border-b border-border">
+              <tr>
                 <td class="py-2">ternlight</td>
                 <td class="py-2">MIT License</td>
               </tr>
@@ -192,6 +222,7 @@
           </table>
         </div>
 
+        <!-- GitHub -->
         <div class="mb-8">
           <h3 class="text-lg font-semibold mb-3">GitHub</h3>
           <a href="https://github.com/kuwa2005/suno-prompt-maker" target="_blank" rel="noopener noreferrer"
@@ -200,6 +231,7 @@
           </a>
         </div>
 
+        <!-- ライセンス -->
         <div class="mb-8">
           <h3 class="text-lg font-semibold mb-3">ライセンス</h3>
           <p class="text-sm text-text-dim">
@@ -207,6 +239,7 @@
           </p>
         </div>
 
+        <!-- プライバシーポリシー -->
         <div class="mb-8">
           <h3 class="text-lg font-semibold mb-3">プライバシーポリシー</h3>
           <div class="text-sm text-text-dim leading-relaxed space-y-3">
@@ -241,5 +274,71 @@
 
   <!-- 上へ戻るボタン -->
   <button id="scroll-top" class="fixed bottom-8 right-8 w-12 h-12 rounded-full border-none bg-accent text-white text-xl cursor-pointer shadow-lg hover:bg-accent-hover hover:-translate-y-0.5 transition-all z-[1000] hidden" aria-label="上へ戻る">&#9650;</button>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+  <script type="module" src="ternlight-engine.js"></script>
+  <script type="module">
+    import { initTernlight, isFallbackMode, translateMainPrompt } from './ternlight-engine.js';
+    import { buildTagIndex } from './tag-index.js';
+    import { createSearchBox, filterTagElements } from './semantic-search.js';
+    import { autoSetWeights } from './auto-setter.js';
+    import { searchHistory, buildHistoryIndex, clearHistoryIndex } from './history-search.js';
+
+    function addSearchBoxes() {
+      for (const [catId, cat] of Object.entries(CATEGORIES)) {
+        const tagContainer = document.getElementById(catId + '-select');
+        if (!tagContainer) continue;
+
+        const searchBox = createSearchBox(catId, (results) => {
+          filterTagElements(tagContainer.querySelectorAll('.tag'), results);
+        });
+        tagContainer.parentElement.insertBefore(searchBox, tagContainer);
+      }
+    }
+
+    async function initializeAI() {
+      try {
+        await initTernlight();
+        await buildTagIndex();
+        addSearchBoxes();
+
+        // translateMainPrompt をグローバルに公開
+        window.translateMainPrompt = translateMainPrompt;
+
+        // メインプロンプトから反映ボタンのイベントハンドラ
+        document.getElementById('btn-apply-prompt').addEventListener('click', async () => {
+          const input = document.getElementById('extra').value.trim();
+          if (!input) return;
+          
+          // メインプロンプトから反映する場合はジャンルも含める
+          await autoSetWeights(input, window.weightSliders, window.updateWeightLabels, false);
+          window.showToast('メインプロンプトからスライダーを設定しました');
+        });
+
+        // 履歴検索のイベントハンドラ
+        document.getElementById('history-search').addEventListener('input', (e) => {
+          const query = e.target.value.trim();
+          const history = JSON.parse(localStorage.getItem('suno_prompt_history') || '[]');
+
+          if (query.length === 0) {
+            window.renderHistory();
+            return;
+          }
+
+          const results = searchHistory(query, history);
+          window.renderHistory(results.map(r => r.entry));
+        });
+
+        console.log('AI features ready');
+      } catch (error) {
+        console.warn('AI features unavailable:', error);
+      }
+    }
+
+    initializeAI();
+  </script>
 </body>
 </html>
