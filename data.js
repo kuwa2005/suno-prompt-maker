@@ -1686,6 +1686,53 @@ const PROMPT_DATA = {
     'hybrid grand piano realism', 'luxury hotel lounge piano',
     'elegant salon piano', 'refined recital piano', 'prestige piano atmosphere',
   ],
+
+  enkaMusic: [
+    'enka arrangement', 'traditional enka instrumentation', 'Showa-era enka arrangement',
+    'dramatic Japanese ballad arrangement', 'minor pentatonic melody', 'yonanuki minor scale',
+    'yonanuki major scale', 'Japanese pentatonic harmony', 'sentimental chord progression',
+    'descending minor progression', 'dramatic tonic resolution', 'slow ballad tempo',
+    'medium-slow enka tempo', '2-beat enka rhythm', 'slow 4-beat ballad feel',
+    'steady backbeat ballad', 'tango-influenced enka rhythm', 'rumba-influenced enka rhythm',
+    'bolero-style enka rhythm', 'waltz-like enka sway', 'dramatic intro fanfare',
+    'orchestral enka intro', 'shamisen intro phrase', 'guitar intro phrase',
+    'saxophone intro phrase', 'accordion intro phrase', 'string section intro',
+    'dramatic pickup phrase', 'verse-to-chorus modulation', 'key change before final chorus',
+    'half-step key lift', 'dramatic bridge modulation', 'suspended dominant chord',
+    'minor-to-major resolution', 'chromatic passing chords', 'descending bassline',
+    'walking bass support', 'upright bass support', 'electric bass ballad groove',
+    'brushed drum pattern', 'restrained drum kit', 'rimshot ballad backbeat',
+    'soft snare accents', 'cymbal swell transitions', 'timpani-like dramatic hits',
+    'orchestral percussion accents', 'taiko-like accent hits', 'woodblock accents',
+    'claves-like rhythm', 'light shaker texture', 'tambourine accents',
+    'shamisen accompaniment', 'shamisen tremolo pattern', 'shamisen fills',
+    'koto arpeggios', 'koto glissando', 'shakuhachi fills', 'shakuhachi intro',
+    'shakuhachi counterline', 'kokyu-like string color', 'Japanese flute ornament fills',
+    'acoustic guitar arpeggios', 'nylon-string guitar accompaniment',
+    'tremolo guitar accompaniment', 'clean electric guitar fills',
+    'muted electric guitar comping', 'steel guitar-like slides', 'accordion backing',
+    'harmonica fills', 'saxophone obbligato', 'alto sax fills', 'tenor sax solo',
+    'trumpet countermelody', 'muted trumpet color', 'trombone section support',
+    'brass section swells', 'string ensemble backing', 'lush string counterline',
+    'pizzicato string accents', 'cello bass support', 'violin obbligato',
+    'orchestral string swell', 'harp glissando', 'piano ballad accompaniment',
+    'grand piano arpeggios', 'piano chord stabs', 'electric piano support',
+    'organ pad backing', 'vibraphone accents', 'marimba-like accents',
+    'music box intro color', 'dramatic unison melody',
+    'call-and-response instrumental fills', 'instrumental answering phrase',
+    'melodic interlude', 'short instrumental break', 'pre-chorus instrumental lift',
+    'chorus orchestral expansion', 'final chorus full arrangement',
+    'restrained verse accompaniment', 'dense chorus backing',
+    'sparse intro arrangement', 'dramatic pause before refrain',
+    'rubato instrumental opening', 'tempo-stable main section', 'ritardando ending',
+    'dramatic final cadence', 'resolved ending', 'long reverb tail ending',
+    'stage-show arrangement', 'karaoke backing track style',
+    'live orchestra backing', 'small-band enka backing',
+    'polished studio enka production', 'nostalgic Showa studio sound',
+    'warm analog recording', 'plate reverb ambience', 'concert hall reverb',
+    'smoky barroom ambience', 'harbor-town atmosphere', 'snowy-night arrangement',
+    'rainy-night arrangement', 'neon nightlife arrangement',
+  ],
 };
 
 // カテゴリメタ情報（名前・説明・データキー・デフォルトウェイト）
@@ -1739,6 +1786,10 @@ const CATEGORIES = {
 
   // 禁止
   exclude:   { name: '禁止・抑制',         label: '禁止・抑制',         desc: '出てきてほしくない音を指定',                                 dataKey: 'exclude',    defaultWeight: 0 },
+  
+  // 演歌
+  enka:      { name: '演歌（歌）',         label: '演歌（歌）',         desc: '歌い方・発声・節回し・こぶし・情念・間',                     dataKey: 'enka',       defaultWeight: 0 },
+  enkaMusic: { name: '演歌（曲）',         label: '演歌（曲）',         desc: '伴奏・和声・編曲・リズム・楽器・曲調',                       dataKey: 'enkaMusic',  defaultWeight: 0 },
 };
 
 // テンプレート定義
