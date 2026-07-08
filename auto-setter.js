@@ -1,10 +1,7 @@
 import { searchTags } from './tag-index.js';
 
 export function autoSetWeights(inputText, weightSliders, updateWeightLabels) {
-  console.log('autoSetWeights called with:', inputText);
-
   const results = searchTags(inputText, 100);
-  console.log('searchTags results count:', results.length);
 
   // 類似度 > 0.05 のカテゴリを集約（フォールバックモード対応）
   const categoryScores = {};
@@ -17,11 +14,8 @@ export function autoSetWeights(inputText, weightSliders, updateWeightLabels) {
     }
   }
 
-  console.log('categoryScores:', categoryScores);
-
   // スコアを正規化して%に変換
   const totalScore = Object.values(categoryScores).reduce((a, b) => a + b, 0);
-  console.log('totalScore:', totalScore);
 
   // 全スライダーを0%にリセット
   for (const id of Object.keys(weightSliders)) {
