@@ -3,54 +3,96 @@ let embedFn = null;
 let cosineSimFn = null;
 let fallbackMode = false;
 
-// 日本語→英語キーワードマッピング
-const JP_EN_MAP = {
-  'カフェ': 'cafe lounge coffee',
-  'チル': 'chill relaxed mellow laid-back',
-  'チルい': 'chill relaxed mellow',
-  'アコースティック': 'acoustic guitar folk gentle',
-  'おしゃれ': 'stylish elegant sophisticated',
-  'オシャレ': 'stylish elegant sophisticated',
-  '流れる': 'flowing smooth gentle',
-  '曲': 'music song melody',
-  '静か': 'quiet calm peaceful soft',
-  '激しい': 'heavy aggressive intense powerful',
-  'メタル': 'metal heavy distorted aggressive',
-  'ロック': 'rock guitar riff drums',
-  'ポップ': 'pop catchy upbeat bright',
-  'ジャズ': 'jazz smooth saxophone piano',
-  'エレクトロ': 'electronic synth dance beat',
-  'アンビエント': 'ambient atmospheric pad space',
-  'フォーク': 'folk acoustic guitar gentle',
-  'シティ': 'city pop urban night',
-  '夏': 'summer beach tropical sunny',
-  '冬': 'winter snow cold christmas',
-  '夜': 'night nocturnal dark moody',
-  '朝': 'morning dawn sunrise bright',
-  '雨': 'rain rainy wet',
-  '海': 'ocean sea beach waves',
-  '山': 'mountain nature forest',
-  '街': 'city urban downtown',
-  '恋人': 'love romantic sweet',
-  '悲しい': 'sad melancholic sorrow',
-  '嬉しい': 'happy joyful bright',
-  '元気': 'energetic upbeat lively',
-  'リラックス': 'relax calm peaceful',
-  'ダンス': 'dance beat groovy',
-  'ビート': 'beat rhythm drum',
-  'メロディー': 'melody tune song',
-  'ハーモニー': 'harmony chord',
-};
-
-// 日本語テキストを英語キーワードに変換
-function jpToEnKeywords(text) {
-  const keywords = [];
-  for (const [jp, en] of Object.entries(JP_EN_MAP)) {
-    if (text.includes(jp)) {
-      keywords.push(...en.split(' '));
+// CATEGORIES から日本語→カテゴリIDのマッピングを動的に構築
+function buildJpToCategoryMap() {
+  const map = {};
+  for (const [catId, cat] of Object.entries(CATEGORIES)) {
+    // カテゴリ名をキーワードとして追加
+    if (cat.name) map[cat.name] = catId;
+    if (cat.label && cat.label !== cat.name) map[cat.label] = catId;
+    // 説明文からキーワードを抽出
+    if (cat.desc) {
+      const words = cat.desc.match(/[\u3040-\u309f\u30a0-\u30ff\u4e00-\u9fafa-zA-Z]+/g);
+      if (words) {
+        for (const word of words) {
+          if (word.length >= 2 && !map[word]) {
+            map[word] = catId;
+          }
+        }
+      }
     }
   }
-  return keywords;
+  return map;
+}
+
+// 日本語テキストからカテゴリIDを抽出
+function extractCategoriesFromJp(text) {
+  const map = buildJpToCategoryMap();
+  const found = {};
+
+  // 長いキーワードから順にマッチング（最長一致）
+  const sortedKeys = Object.keys(map).sort((a, b) => b.length - a.length);
+  const matched = new Set();
+
+  for (const key of sortedKeys) {
+    if (text.includes(key) && !matched.has(key)) {
+      const catId = map[key];
+      if (!found[catId]) found[catId] = 0;
+      found[catId] += key.length; // マッチした文字数をスコアに
+      matched.add(key);
+    }
+  }
+
+  return found;
+}
+
+// 日本語テキストを英語トークンに変換（フォールバック用）
+function jpToEnTokens(text) {
+  const tokens = [];
+
+  // CATEGORIESの日本語名から英語キーワードを生成
+  const catMap = {
+    'ジャンル': ['genre', 'pop', 'rock', 'jazz', 'electronic'],
+    'スタイル': ['style', 'smooth', 'energetic', 'calm'],
+    'ムード': ['mood', 'happy', 'sad', 'dark', 'bright'],
+    'テンポ': ['tempo', 'fast', 'slow', 'bpm'],
+    '高速テンポ': ['fast', 'speed', 'energetic', 'upbeat'],
+    'スローテンポ': ['slow', 'relaxed', 'calm', 'gentle'],
+    '時代・質感': ['era', 'vintage', 'retro', 'modern'],
+    '80年代特化': ['80s', 'retro', 'synthwave', 'synth'],
+    'メジャーコード': ['major', 'happy', 'bright', 'uplifting'],
+    'マイナーコード': ['minor', 'sad', 'dark', 'melancholic'],
+    'キラキラ': ['sparkle', 'bright', 'shimmer', 'bell'],
+    'ダーク': ['dark', 'heavy', 'ominous', 'shadow'],
+    '演奏記法': ['technique', 'picking', 'strumming', 'articulation'],
+    '楽器': ['instrument', 'guitar', 'piano', 'drums'],
+    'ピアノ': ['piano', 'keys', 'keyboard'],
+    '和楽器': ['traditional', 'japanese', 'koto', 'shamisen'],
+    'ギター挙動': ['guitar', 'riff', 'strum', 'picking'],
+    'ベース挙動': ['bass', 'groove', 'low-end'],
+    'ドラム・打楽器': ['drums', 'percussion', 'beat', 'rhythm'],
+    'リズム・グルーヴ': ['rhythm', 'groove', 'beat', 'feel'],
+    'シンセ音色': ['synth', 'synthesizer', 'electronic'],
+    'LFO': ['lfo', 'modulation', 'wobble'],
+    '音の動き': ['motion', 'movement', 'dynamic'],
+    '音像・空間': ['space', 'reverb', 'delay', 'stereo'],
+    'エフェクト・ミックス': ['fx', 'effects', 'mix', 'master'],
+    'ディストーション': ['distortion', 'overdrive', 'fuzz'],
+    'ノイズ': ['noise', 'static', 'texture'],
+    '展開・構成': ['structure', 'arrangement', 'section'],
+    'アレンジ密度': ['density', 'arrangement', 'layer'],
+    'ボーカル表現': ['vocal', 'singing', 'voice'],
+    'コーラス・ハーモニー': ['chorus', 'harmony', 'backing'],
+    '禁止・抑制': ['avoid', 'no', 'without'],
+  };
+
+  for (const [jp, en] of Object.entries(catMap)) {
+    if (text.includes(jp)) {
+      tokens.push(...en);
+    }
+  }
+
+  return tokens;
 }
 
 export async function initTernlight() {
@@ -65,11 +107,7 @@ export async function initTernlight() {
     console.warn('ternlight unavailable, using fallback mode');
     fallbackMode = true;
 
-    // フォールバック: 日本語→英語変換 + キーワード一致
-    embedFn = (text) => {
-      const enKeywords = jpToEnKeywords(text);
-      return enKeywords;
-    };
+    embedFn = (text) => jpToEnTokens(text);
 
     cosineSimFn = (a, b) => {
       if (!a.length || !b.length) return 0;
@@ -99,4 +137,9 @@ export function isReady() {
 
 export function isFallbackMode() {
   return fallbackMode;
+}
+
+// 日本語入力からカテゴリを直接抽出（auto-setter.jsで使用）
+export function extractCategoriesDirectly(text) {
+  return extractCategoriesFromJp(text);
 }
