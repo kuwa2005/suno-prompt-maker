@@ -5,6 +5,27 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Suno Prompt Maker</title>
   <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            bg: 'var(--bg)',
+            surface: 'var(--surface)',
+            surface2: 'var(--surface2)',
+            border: 'var(--border)',
+            text: 'var(--text)',
+            'text-dim': 'var(--text-dim)',
+            accent: 'var(--accent)',
+            'accent-hover': 'var(--accent-hover)',
+            danger: 'var(--danger)',
+          }
+        }
+      }
+    }
+  </script>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body class="bg-bg text-text min-h-screen leading-relaxed transition-colors duration-200">
