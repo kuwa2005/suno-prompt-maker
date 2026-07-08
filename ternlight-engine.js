@@ -326,18 +326,6 @@ function extractCategoriesFromFallback(text) {
   return found;
 }
 
-  for (const [jp, catIds] of Object.entries(jpCategoryMap)) {
-    if (text.includes(jp)) {
-      for (const catId of catIds) {
-        if (!found[catId]) found[catId] = 0;
-        found[catId] += jp.length;
-      }
-    }
-  }
-
-  return found;
-}
-
 // 英語テキストからカテゴリを抽出
 function extractCategoriesFromEnText(enText) {
   const lower = enText.toLowerCase();
