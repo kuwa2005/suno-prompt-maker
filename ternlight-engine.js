@@ -71,14 +71,17 @@ export async function initTernlight() {
 
     embedFn = (text) => {
       const tokens = tokenize(text);
+      console.log('Tokenized:', tokens);
 
       // 日本語キーワードを英語トークンに変換
       for (const [jp, enTokens] of Object.entries(JP_KEYWORD_MAP)) {
         if (text.includes(jp)) {
+          console.log('Matched Japanese keyword:', jp, '→', enTokens);
           tokens.push(...enTokens);
         }
       }
 
+      console.log('Final tokens:', tokens);
       return tokens;
     };
 
