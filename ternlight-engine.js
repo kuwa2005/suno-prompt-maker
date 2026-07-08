@@ -195,15 +195,17 @@ function extractCategoriesFromEnText(enText) {
 
   // カテゴリのキーワードリスト（カテゴリ固有のキーワード）
   const categoryKeywords = {
-    'genre': ['pop', 'rock', 'jazz', 'electronic', 'dance', 'hip hop', 'r&b', 'country', 'folk', 'blues', 'classical', 'ambient', 'reggae', 'metal', 'punk', 'soul', 'funk', 'disco', 'house', 'techno', 'trance', 'dubstep', 'drum and bass', 'synthwave', 'city pop', 'lo-fi', 'bossa nova', 'samba', 'tango'],
-    'style': ['smooth', 'energetic', 'calm', 'aggressive', 'relaxed', 'upbeat', 'mellow', 'raw', 'polished', 'elegant', 'warm', 'cold', 'bright', 'dark', 'soft', 'heavy', 'light', 'minimal', 'maximal', 'organic', 'electronic', 'acoustic', 'electric', 'modern', 'retro', 'vintage', 'futuristic'],
-    'mood': ['happy', 'sad', 'dark', 'bright', 'melancholic', 'euphoric', 'peaceful', 'tense', 'romantic', 'nostalgic', 'dreamy', 'aggressive', 'mysterious', 'hopeful', 'anxious', 'calm', 'energetic', 'relaxed', 'intense', 'gentle'],
-    'instrument': ['guitar', 'piano', 'drums', 'bass', 'synthesizer', 'saxophone', 'trumpet', 'violin', 'cello', 'flute', 'organ', 'harp'],
-    'vocal': ['vocal', 'singing', 'voice', 'chorus', 'harmony', 'rap', 'whisper', 'falsetto', 'growl', 'scream'],
-    'tempo': ['fast', 'slow', 'mid-tempo', 'upbeat', 'downtempo', 'energetic', 'relaxed', 'driving', 'laid-back'],
-    'space': ['reverb', 'delay', 'echo', 'spacious', 'intimate', 'dry', 'wet', 'wide', 'narrow', 'stereo', 'mono'],
-    'structure': ['verse', 'chorus', 'bridge', 'intro', 'outro', 'build', 'drop', 'breakdown', 'drop'],
-    'density': ['sparse', 'dense', 'minimal', 'layered', 'thick', 'thin', 'full', 'open'],
+    'genre': ['pop', 'rock', 'jazz', 'electronic', 'dance', 'hip hop', 'r&b', 'country', 'folk', 'blues', 'classical', 'ambient', 'reggae', 'metal', 'punk', 'soul', 'funk', 'disco', 'house', 'techno', 'trance', 'dubstep', 'drum and bass', 'synthwave', 'city pop', 'lo-fi', 'bossa nova', 'samba', 'tango', 'acoustic', 'indie', 'alternative', 'experimental', 'avant-garde', 'minimal', 'maximal', 'world', 'latin', 'african', 'asian', 'traditional', 'contemporary'],
+    'style': ['smooth', 'energetic', 'calm', 'aggressive', 'relaxed', 'upbeat', 'mellow', 'raw', 'polished', 'elegant', 'warm', 'cold', 'bright', 'dark', 'soft', 'heavy', 'light', 'minimal', 'maximal', 'organic', 'electronic', 'acoustic', 'electric', 'modern', 'retro', 'vintage', 'futuristic', 'stylish', 'chill', 'groovy', 'funky', 'dreamy', 'ethereal', 'cinematic', 'dramatic'],
+    'mood': ['happy', 'sad', 'dark', 'bright', 'melancholic', 'euphoric', 'peaceful', 'tense', 'romantic', 'nostalgic', 'dreamy', 'aggressive', 'mysterious', 'hopeful', 'anxious', 'calm', 'energetic', 'relaxed', 'intense', 'gentle', 'sweet', 'bitter', 'warm', 'cold', 'lonely', 'joyful', 'reflective', 'contemplative'],
+    'instrument': ['guitar', 'piano', 'drums', 'bass', 'synthesizer', 'saxophone', 'trumpet', 'violin', 'cello', 'flute', 'organ', 'harp', 'keys', 'keyboard', 'strings', 'brass', 'woodwinds', 'percussion', 'drum machine', 'sampler'],
+    'vocal': ['vocal', 'singing', 'voice', 'chorus', 'harmony', 'rap', 'whisper', 'falsetto', 'growl', 'scream', 'melody', 'lyrics', 'chant', 'spoken word'],
+    'tempo': ['fast', 'slow', 'mid-tempo', 'upbeat', 'downtempo', 'energetic', 'relaxed', 'driving', 'laid-back', 'bpm', 'tempo', 'rhythm', 'groove'],
+    'space': ['reverb', 'delay', 'echo', 'spacious', 'intimate', 'dry', 'wet', 'wide', 'narrow', 'stereo', 'mono', 'room', 'hall', 'cathedral', 'outdoor', 'indoor'],
+    'structure': ['verse', 'chorus', 'bridge', 'intro', 'outro', 'build', 'drop', 'breakdown', 'bridge', 'pre-chorus', 'hook', 'riff', 'solo'],
+    'density': ['sparse', 'dense', 'minimal', 'layered', 'thick', 'thin', 'full', 'open', 'complex', 'simple', 'busy', 'clean'],
+    'technique': ['fingerpicking', 'strumming', 'plucking', 'bending', 'vibrato', 'tremolo', 'palm mute', 'slide', 'hammer-on', 'pull-off', 'arpeggio', 'scale', 'chord', 'progression'],
+    'fx': ['distortion', 'overdrive', 'fuzz', 'chorus', 'flanger', 'phaser', 'tremolo', 'vibrato', 'compressor', 'equalizer', 'limiter', 'gate', 'satur', 'warm', 'clean', 'crunch', 'grit'],
   };
 
   // 各カテゴリのキーワードと一致数をカウント
