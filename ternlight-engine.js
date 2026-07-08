@@ -3,11 +3,15 @@ let embedFn = null;
 let cosineSimFn = null;
 let fallbackMode = false;
 let translatorReady = false;
+let translatorInitializing = false;
 
 // Chrome Translator API の初期化
 let translator = null;
 
 async function initTranslator() {
+  if (translatorReady || translatorInitializing) return;
+  translatorInitializing = true;
+
   if ('Translator' in self) {
     try {
       const availability = await Translator.availability({
@@ -25,10 +29,16 @@ async function initTranslator() {
       // Translator API が利用できない場合はスキップ
     }
   }
+  translatorInitializing = false;
 }
 
 // 日本語テキストを英語に翻訳
 async function translateJpToEn(text) {
+  // ユーザージェスチャー時に初期化を試行
+  if (!translatorReady && !translatorInitializing) {
+    await initTranslator();
+  }
+
   if (translatorReady && translator) {
     try {
       return await translator.translate(text);
@@ -160,14 +170,9 @@ export async function translateMainPrompt(text) {
   if (!hasJapanese) return text;
 
   // Chrome Translator API が利用可能なら翻訳
-  if (translatorReady && translator) {
-    try {
-      const translated = await translator.translate(text);
-      console.log('Main prompt translated:', translated);
-      return translated;
-    } catch (e) {
-      console.warn('Translation failed:', e);
-    }
+  const translated = await translateJpToEn(text);
+  if (translated) {
+    return translated;
   }
 
   // 翻訳不可の場合は元のテキストを返す
