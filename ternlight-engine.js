@@ -159,6 +159,29 @@ export function isFallbackMode() {
   return fallbackMode;
 }
 
+// 日本語テキストを英語に翻訳（メインプロンプト用）
+export async function translateMainPrompt(text) {
+  if (!text) return text;
+
+  // 日本語が含まれているか確認
+  const hasJapanese = /[\u3040-\u309f\u30a0-\u30ff\u4e00-\u9faf]/.test(text);
+  if (!hasJapanese) return text;
+
+  // Chrome Translator API が利用可能なら翻訳
+  if (translatorReady && translator) {
+    try {
+      const translated = await translator.translate(text);
+      console.log('Main prompt translated:', translated);
+      return translated;
+    } catch (e) {
+      console.warn('Translation failed:', e);
+    }
+  }
+
+  // 翻訳不可の場合は元のテキストを返す
+  return text;
+}
+
 // Chrome Translator API を使用した翻訳付きのカテゴリ抽出
 export async function extractCategoriesWithTranslation(text) {
   // 日本語テキストの場合はフォールバックマッピングを試行
