@@ -225,11 +225,13 @@ function extractCategoriesFromFallback(text) {
 
   // 日本語→カテゴリの直接マッピング
   const jpCategoryMap = {
+    // ジャンル
     'カフェ': ['style', 'mood'],
     'チル': ['style', 'mood'],
     'アコースティック': ['instrument', 'genre'],
     'ロック': ['genre', 'instrument'],
     'ポップ': ['genre', 'style'],
+    'ポップス': ['genre', 'style'],
     'ジャズ': ['genre', 'style'],
     'エレクトロ': ['genre', 'instrument'],
     'アンビエント': ['genre', 'style'],
@@ -240,6 +242,25 @@ function extractCategoriesFromFallback(text) {
     'レゲエ': ['genre'],
     'メタル': ['genre', 'style'],
     'パンク': ['genre', 'style'],
+    'トランス': ['genre'],
+    'ハウス': ['genre'],
+    'テクノ': ['genre'],
+    'トラップ': ['genre'],
+    'R&B': ['genre'],
+    'ソウル': ['genre'],
+    'ファンク': ['genre'],
+    'ディスコ': ['genre'],
+
+    // 時代・質感
+    '80年代': ['era', '年代80'],
+    '80s': ['era', '年代80'],
+    '70年代': ['era'],
+    '90年代': ['era'],
+    'レトロ': ['era'],
+    'ヴィンテージ': ['era'],
+    'ノスタルジック': ['era', 'mood'],
+
+    // 雰囲気
     'おしゃれ': ['style', 'mood'],
     'オシャレ': ['style', 'mood'],
     'リラックス': ['style', 'mood'],
@@ -256,14 +277,31 @@ function extractCategoriesFromFallback(text) {
     '冬': ['mood'],
     '雨': ['mood'],
     '海': ['mood'],
+    'ダーク': ['style', 'mood'],
+    'キラキラ': ['style', 'mood'],
+
+    // 演奏・楽器
+    'ピアノ': ['instrument'],
+    'ギター': ['instrument'],
+    'ベース': ['instrument'],
+    'ドラム': ['instrument'],
+    'シンセ': ['instrument'],
+    'ボーカル': ['vocal'],
+    'コーラス': ['vocal'],
+    '和楽器': ['instrument'],
+
+    // その他
     '流れる': ['style'],
     '踊る': ['style'],
     '曲': ['structure'],
     'リズム': ['tempo', 'structure'],
     'メロディー': ['vocal', 'structure'],
     'ハーモニー': ['vocal'],
-    'ピアノ': ['instrument'],
-    '和楽器': ['instrument'],
+    '空間': ['space'],
+    'エフェクト': ['fx'],
+    'ノイズ': ['fx'],
+    '構成': ['structure'],
+    '密度': ['density'],
     'ジャンル': ['genre'],
     'スタイル': ['style'],
     'ムード': ['mood'],
@@ -272,11 +310,21 @@ function extractCategoriesFromFallback(text) {
     'スローテンポ': ['tempo'],
     'メジャーコード': ['technique'],
     'マイナーコード': ['technique'],
-    'キラキラ': ['style', 'mood'],
-    'ダーク': ['style', 'mood'],
     '演奏記法': ['technique'],
     '楽器': ['instrument'],
-    'ギター': ['instrument'],
+  };
+
+  for (const [jp, catIds] of Object.entries(jpCategoryMap)) {
+    if (text.includes(jp)) {
+      for (const catId of catIds) {
+        if (!found[catId]) found[catId] = 0;
+        found[catId] += jp.length;
+      }
+    }
+  }
+
+  return found;
+}
     'ベース': ['instrument'],
     'ドラム': ['instrument'],
     'シンセ': ['instrument'],
