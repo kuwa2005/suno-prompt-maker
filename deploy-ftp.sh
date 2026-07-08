@@ -35,7 +35,8 @@ FTP_PASS="bbCE5mT7tAK5"
 FTP_REMOTE_PATH="/public_html/debugprint.com/suno-prompt-maker"
 
 # --- 転送対象ファイル -------------------------------------------------------
-UPLOAD_FILES=(index.html data.js app.js styles.css favicon.ico ternlight-engine.js tag-index.js semantic-search.js auto-setter.js history-search.js)
+UPLOAD_DIR="dist"
+UPLOAD_FILES=(index.html)
 
 # --- 転送オプション（通常はそのままで可） -----------------------------------
 FTP_PASSIVE_MODE="${FTP_PASSIVE_MODE:-1}"
@@ -267,7 +268,7 @@ upload_with_lftp() {
     printf ' --exclude %q' 'node_modules/'
     # それ以外はすべて除外
     printf ' --exclude %q' '*'
-    printf ' %q %q\n' "${SCRIPT_DIR}/" "${REMOTE_PATH}/"
+    printf ' %q %q\n' "${SCRIPT_DIR}/${UPLOAD_DIR}/" "${REMOTE_PATH}/"
 
     echo "bye"
   } >"$lftp_script"

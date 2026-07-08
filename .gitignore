@@ -1,3 +1,5 @@
 node_modules/
 deploy-ftp.sh
 deploy.env
+dist/
+.vite/

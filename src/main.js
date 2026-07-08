@@ -2,24 +2,26 @@
 // Suno Prompt Maker - メインアプリ（Tailwind CSS対応）
 // ============================================================
 
-(function () {
-  'use strict';
+import { initTernlight, translateMainPrompt, isFallbackMode } from './ternlight-engine.js';
+import { buildTagIndex } from './tag-index.js';
+import { createSearchBox, filterTagElements } from './semantic-search.js';
+import { autoSetWeights } from './auto-setter.js';
 
-  // --- Utility ---
-  function pick(arr) {
-    return arr[Math.floor(Math.random() * arr.length)];
-  }
+// --- Utility ---
+function pick(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
 
-  function pickMultiple(arr, count) {
-    const shuffled = [...arr].sort(() => Math.random() - 0.5);
-    return shuffled.slice(0, Math.min(count, arr.length));
-  }
+function pickMultiple(arr, count) {
+  const shuffled = [...arr].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, Math.min(count, arr.length));
+}
 
-  function escapeHtml(str) {
-    const div = document.createElement('div');
-    div.textContent = str;
-    return div.innerHTML;
-  }
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
 
   // --- Toast ---
   function showToast(message, duration) {
@@ -590,9 +592,28 @@
   updateWeightLabels();
   renderTemplates();
   renderLyricTemplates();
-  
+
   // グローバル変数として公開（AI反映機能用）
   window.weightSliders = weightSliders;
   window.updateWeightLabels = updateWeightLabels;
   window.renderHistory = renderHistory;
-})();
+
+  // --- AI機能の初期化 ---
+  async function initializeAI() {
+    try {
+      await initTernlight();
+      await buildTagIndex();
+      
+      // メインプロンプトから反映ボタンのイベントハンドラ
+      document.getElementById('btn-apply-prompt').addEventListener('click', async () => {
+        const input = document.getElementById('extra').value.trim();
+        if (!input) return;
+        await autoSetWeights(input, window.weightSliders, window.updateWeightLabels, false);
+        showToast('メインプロンプトからスライダーを設定しました');
+      });
+    } catch (error) {
+      console.warn('AI features unavailable:', error);
+    }
+  }
+
+  initializeAI();
