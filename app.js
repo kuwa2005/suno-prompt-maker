@@ -228,12 +228,16 @@
     });
   });
 
-  // --- Build prompt ---
-  function buildPrompt() {
+  // --- Build prompt (翻訳対応) ---
+  async function buildPrompt() {
     const parts = [];
-    const extra = document.getElementById('extra').value.trim();
+    let extra = document.getElementById('extra').value.trim();
 
-    if (extra) parts.push(extra);
+    // 日本語が含まれていたら英語に翻訳
+    if (extra) {
+      extra = await translateMainPrompt(extra);
+      parts.push(extra);
+    }
 
     // 全カテゴリの選択済みアイテムをフラットに集約
     const allItems = [];
@@ -252,8 +256,8 @@
     return { promptLine, full: promptLine };
   }
 
-  // --- Random fill (割合ベース) ---
-  function randomFill() {
+  // --- Random fill (割合ベース、翻訳対応) ---
+  async function randomFill() {
     for (const id of WEIGHT_IDS) SEL_MAP[id].clear();
 
     const MAX = parseInt(document.getElementById('w-charlimit').value, 10);
@@ -323,7 +327,7 @@
       SEL_MAP[id].setFromValue(shuffle(selected[id]));
     }
 
-    showOutput();
+    await showOutput();
   }
 
   function shuffle(arr) {
@@ -335,9 +339,9 @@
     return a;
   }
 
-  // --- Output ---
-  function showOutput() {
-    const { full } = buildPrompt();
+  // --- Output (翻訳対応) ---
+  async function showOutput() {
+    const { full } = await buildPrompt();
     const outputArea = document.getElementById('output-area');
     const outputEl = document.getElementById('prompt-output');
     outputEl.textContent = full;
@@ -438,8 +442,8 @@
     commentDialog.close();
   });
 
-  document.getElementById('btn-dialog-save').addEventListener('click', () => {
-    const { promptLine, full } = buildPrompt();
+  document.getElementById('btn-dialog-save').addEventListener('click', async () => {
+    const { promptLine, full } = await buildPrompt();
     const comment = historyCommentInput.value.trim();
     addToHistory({
       comment,
@@ -474,7 +478,7 @@
           showToast('コピーしました');
         });
       });
-      card.addEventListener('click', () => {
+      card.addEventListener('click', async () => {
         for (const id of WEIGHT_IDS) SEL_MAP[id].clear();
 
         if (tpl.tags) {
@@ -488,7 +492,7 @@
         document.querySelector('[data-tab="create"]').classList.add('active');
         document.getElementById('tab-create').classList.add('active');
 
-        showOutput();
+        await showOutput();
       });
       list.appendChild(card);
     });
