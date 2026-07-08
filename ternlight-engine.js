@@ -202,15 +202,82 @@ export async function extractCategoriesWithTranslation(text) {
 // フォールバックマッピングからカテゴリを抽出
 function extractCategoriesFromFallback(text) {
   const found = {};
-  for (const [jp, en] of Object.entries(JP_FALLBACK_MAP)) {
+
+  // 日本語→カテゴリの直接マッピング
+  const jpCategoryMap = {
+    'カフェ': ['style', 'mood'],
+    'チル': ['style', 'mood'],
+    'アコースティック': ['instrument', 'genre'],
+    'ロック': ['genre', 'instrument'],
+    'ポップ': ['genre', 'style'],
+    'ジャズ': ['genre', 'style'],
+    'エレクトロ': ['genre', 'instrument'],
+    'アンビエント': ['genre', 'style'],
+    'フォーク': ['genre', 'instrument'],
+    'シティポップ': ['genre'],
+    'シンセウェーブ': ['genre'],
+    'ヒップホップ': ['genre'],
+    'レゲエ': ['genre'],
+    'メタル': ['genre', 'style'],
+    'パンク': ['genre', 'style'],
+    'おしゃれ': ['style', 'mood'],
+    'オシャレ': ['style', 'mood'],
+    'リラックス': ['style', 'mood'],
+    '元気': ['style', 'mood'],
+    '静か': ['style', 'mood'],
+    '激しい': ['style', 'mood'],
+    '甘い': ['mood'],
+    '切ない': ['mood'],
+    '明るい': ['mood'],
+    '暗い': ['mood'],
+    '夜': ['mood'],
+    '朝': ['mood'],
+    '夏': ['mood'],
+    '冬': ['mood'],
+    '雨': ['mood'],
+    '海': ['mood'],
+    '流れる': ['style'],
+    '踊る': ['style'],
+    '曲': ['structure'],
+    'リズム': ['tempo', 'structure'],
+    'メロディー': ['vocal', 'structure'],
+    'ハーモニー': ['vocal'],
+    'ピアノ': ['instrument'],
+    '和楽器': ['instrument'],
+    'ジャンル': ['genre'],
+    'スタイル': ['style'],
+    'ムード': ['mood'],
+    'テンポ': ['tempo'],
+    '高速テンポ': ['tempo'],
+    'スローテンポ': ['tempo'],
+    'メジャーコード': ['technique'],
+    'マイナーコード': ['technique'],
+    'キラキラ': ['style', 'mood'],
+    'ダーク': ['style', 'mood'],
+    '演奏記法': ['technique'],
+    '楽器': ['instrument'],
+    'ギター': ['instrument'],
+    'ベース': ['instrument'],
+    'ドラム': ['instrument'],
+    'シンセ': ['instrument'],
+    'ボーカル': ['vocal'],
+    'コーラス': ['vocal'],
+    '空間': ['space'],
+    'エフェクト': ['fx'],
+    'ノイズ': ['fx'],
+    '構成': ['structure'],
+    '密度': ['density'],
+  };
+
+  for (const [jp, catIds] of Object.entries(jpCategoryMap)) {
     if (text.includes(jp)) {
-      const catId = findCategoryByKeyword(en);
-      if (catId) {
+      for (const catId of catIds) {
         if (!found[catId]) found[catId] = 0;
         found[catId] += jp.length;
       }
     }
   }
+
   return found;
 }
 
