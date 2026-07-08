@@ -20,10 +20,9 @@ async function initTranslator() {
           targetLanguage: 'en',
         });
         translatorReady = true;
-        console.log('Translator API ready');
       }
     } catch (e) {
-      console.warn('Translator API not available:', e);
+      // Translator API が利用できない場合はスキップ
     }
   }
 }
@@ -34,7 +33,7 @@ async function translateJpToEn(text) {
     try {
       return await translator.translate(text);
     } catch (e) {
-      console.warn('Translation failed:', e);
+      // 翻訳失敗時は null を返す
     }
   }
   return null;
@@ -117,7 +116,7 @@ export async function initTernlight() {
     cosineSimFn = module.cosineSim;
     isInitialized = true;
   } catch (error) {
-    console.warn('ternlight unavailable, using fallback mode');
+    // ternlight CDN が利用できない場合はフォールバックモードで動作
     fallbackMode = true;
 
     embedFn = (text) => {
