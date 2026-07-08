@@ -305,16 +305,6 @@
 
         // translateMainPrompt をグローバルに公開
         window.translateMainPrompt = translateMainPrompt;
-        
-        // AI反映ボタンのイベントハンドラ
-        document.getElementById('btn-ai-set').addEventListener('click', async () => {
-          const input = document.getElementById('ai-input').value.trim();
-          if (!input) return;
-          
-          // weightSliders と updateWeightLabels は app.js のグローバル変数
-          await autoSetWeights(input, window.weightSliders, window.updateWeightLabels);
-          window.showToast('AIで設定を反映しました');
-        });
 
         // メインプロンプトから反映ボタンのイベントハンドラ
         document.getElementById('btn-apply-prompt').addEventListener('click', async () => {
@@ -326,19 +316,6 @@
           window.showToast('メインプロンプトからスライダーを設定しました');
         });
 
-        // プリセットドロップダウンのイベントハンドラ
-        document.getElementById('ai-preset').addEventListener('change', (e) => {
-          const value = e.target.value;
-          if (value) {
-            document.getElementById('ai-input').value = value;
-          }
-        });
-
-        // テキストボックス編集時にプリセット選択をリセット
-        document.getElementById('ai-input').addEventListener('input', () => {
-          document.getElementById('ai-preset').value = '';
-        });
-        
         // 履歴検索のイベントハンドラ
         document.getElementById('history-search').addEventListener('input', (e) => {
           const query = e.target.value.trim();
