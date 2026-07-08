@@ -1,0 +1,292 @@
+#!/usr/bin/env bash
+# =============================================================================
+# Suno Prompt Maker — 静的ファイルを FTP でレンタルサーバーへアップロード
+# =============================================================================
+#
+# 【使い方】
+#   1. 下記「接続設定」の 4 行（FTP_SERVER / FTP_USER / FTP_PASS / FTP_REMOTE_PATH）
+#      を自分のサーバー情報に書き換えてから実行してください。
+#   2. ./deploy-ftp.sh           ← 差分転送
+#      ./deploy-ftp.sh --dry-run ← 確認のみ（転送しない）
+#
+# 【フロー】
+#   → リモートに suno-prompt-maker/ があれば suno-prompt-maker.NNN へリネーム（バックアップ）
+#   → ローカルの data.js / app.js / index.html / styles.css をリモートへミラー転送
+#
+# 【バックアップ番号】
+#   suno-prompt-maker.000, suno-prompt-maker.001, … の最大番号 + 1。999 まで。
+#
+# 【依存】
+#   lftp（バックアップ退避の mv と mirror 再帰） … sudo apt install lftp
+#
+# 【セキュリティ】
+#   本スクリプトに本番の FTP パスワードを書く場合、公開リポジトリへ
+#   コミットしないでください（プライベート運用・ローカルのみ推奨）。
+# =============================================================================
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
+
+# --- 接続設定（初回前に必ず編集） -------------------------------------------
+FTP_SERVER="b45.coreserver.jp"
+FTP_USER="pcm"
+FTP_PASS="bbCE5mT7tAK5"
+FTP_REMOTE_PATH="/public_html/debugprint.com/suno-prompt-maker"
+
+# --- 転送対象ファイル -------------------------------------------------------
+UPLOAD_FILES=(index.html data.js app.js styles.css ternlight-engine.js tag-index.js semantic-search.js auto-setter.js history-search.js)
+
+# --- 転送オプション（通常はそのままで可） -----------------------------------
+FTP_PASSIVE_MODE="${FTP_PASSIVE_MODE:-1}"
+FTP_USE_SSL="${FTP_USE_SSL:-0}"
+FTP_MIRROR_DELETE="${FTP_MIRROR_DELETE:-1}"
+
+# --- 内部状態 ----------------------------------------------------------------
+ENV_FILE="${DEPLOY_ENV_FILE:-${SCRIPT_DIR}/deploy.env}"
+DRY_RUN=0
+USE_ENV_FILE=0
+
+usage() {
+  cat <<'EOF'
+使い方: ./deploy-ftp.sh [オプション]
+
+  Suno Prompt Maker の静的ファイルを FTP でリモートへアップロードします。
+  既存のリモート suno-prompt-maker/ は suno-prompt-maker.NNN へ退避してから新規配置します。
+
+オプション:
+  -h, --help        このヘルプ
+  -n, --dry-run     バックアップ予定の表示と mirror --dry-run（転送しない）
+  -e, --env-file F  deploy.env で埋め込みを上書き
+
+環境変数で上書き（任意）:
+  FTP_SERVER, FTP_USER, FTP_PASS, FTP_REMOTE_PATH
+
+例:
+  ./deploy-ftp.sh
+  ./deploy-ftp.sh --dry-run
+
+EOF
+}
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    -n|--dry-run)
+      DRY_RUN=1
+      shift
+      ;;
+    -e|--env-file)
+      if [[ $# -lt 2 ]]; then
+        echo "エラー: --env-file にはファイルパスが必要です。" >&2
+        exit 1
+      fi
+      ENV_FILE="$2"
+      USE_ENV_FILE=1
+      shift 2
+      ;;
+    *)
+      echo "エラー: 不明なオプション: $1（--help で一覧）" >&2
+      exit 1
+      ;;
+  esac
+done
+
+# 任意の deploy.env（明示 -e またはファイルが存在するときのみ読み込み）
+if [[ "$USE_ENV_FILE" -eq 1 ]]; then
+  if [[ ! -f "$ENV_FILE" ]]; then
+    echo "エラー: 指定した設定ファイルが見つかりません: $ENV_FILE" >&2
+    exit 1
+  fi
+  set -a; source "$ENV_FILE"; set +a
+elif [[ -f "$ENV_FILE" ]]; then
+  set -a; source "$ENV_FILE"; set +a
+fi
+
+# 環境変数・deploy.env による上書き
+FTP_SERVER="${FTP_SERVER:-}"
+FTP_USER="${FTP_USER:-}"
+FTP_PASS="${FTP_PASS:-}"
+FTP_REMOTE_PATH="${FTP_REMOTE_PATH:-}"
+
+is_placeholder_config() {
+  [[ -z "$FTP_SERVER" || "$FTP_SERVER" == "ftp.example.com" ]] && return 0
+  [[ -z "$FTP_USER" || "$FTP_USER" == "your_account" ]] && return 0
+  [[ -z "$FTP_PASS" || "$FTP_PASS" == "your_password" ]] && return 0
+  [[ -z "$FTP_REMOTE_PATH" ]] && return 0
+  return 1
+}
+
+if is_placeholder_config; then
+  echo "エラー: FTP 接続設定が未編集です。" >&2
+  echo "  deploy-ftp.sh 先頭の次の 4 行を自分のサーバー情報に書き換えてください:" >&2
+  echo "    FTP_SERVER, FTP_USER, FTP_PASS, FTP_REMOTE_PATH" >&2
+  exit 1
+fi
+
+# 転送対象の存在チェック
+MISSING=()
+for f in "${UPLOAD_FILES[@]}"; do
+  [[ ! -f "${SCRIPT_DIR}/${f}" ]] && MISSING+=("$f")
+done
+if [[ ${#MISSING[@]} -gt 0 ]]; then
+  echo "エラー: 転送対象ファイルが見つかりません: ${MISSING[*]}" >&2
+  exit 1
+fi
+
+REMOTE_PATH="${FTP_REMOTE_PATH}"
+REMOTE_PATH="${REMOTE_PATH#/}"
+REMOTE_PATH="${REMOTE_PATH%/}"
+REMOTE_TARGET_NAME="${REMOTE_PATH##*/}"
+REMOTE_PARENT="${REMOTE_PATH%/*}"
+[[ "$REMOTE_PARENT" == "$REMOTE_PATH" ]] && REMOTE_PARENT="."
+
+BACKUP_MAX=999
+
+write_lftp_connection() {
+  echo "set cmd:fail-exit yes"
+  echo "set ftp:passive-mode ${FTP_PASSIVE_MODE}"
+  if [[ "$FTP_USE_SSL" == "1" ]]; then
+    echo "set ftp:ssl-force true"
+    echo "set ssl:verify-certificate no"
+  else
+    echo "set ftp:ssl-allow no"
+  fi
+  echo "open -u ${FTP_USER},${FTP_PASS} ${FTP_SERVER}"
+}
+
+lftp_remote_parent_listing() {
+  local lftp_script
+  lftp_script="$(mktemp)"
+  chmod 600 "$lftp_script"
+  {
+    write_lftp_connection
+    [[ "$REMOTE_PARENT" != "." ]] && printf 'cd %q\n' "/${REMOTE_PARENT}"
+    echo "cls -1"
+    echo "bye"
+  } >"$lftp_script"
+  lftp -f "$lftp_script" 2>/dev/null || true
+  rm -f "$lftp_script"
+}
+
+compute_next_backup_suffix() {
+  local listing="$1" line name num max=-1
+  while IFS= read -r line; do
+    name="${line%% *}"
+    name="${name%/}"
+    [[ -z "$name" ]] && continue
+    if [[ "$name" =~ ^${REMOTE_TARGET_NAME}\.([0-9]{3})$ ]]; then
+      num=$((10#${BASH_REMATCH[1]}))
+      (( num > max )) && max=$num
+    fi
+  done <<<"$listing"
+  printf '%03d' $((max + 1))
+}
+
+remote_target_exists() {
+  local listing="$1" line name
+  while IFS= read -r line; do
+    name="${line%% *}"
+    name="${name%/}"
+    [[ "$name" == "$REMOTE_TARGET_NAME" ]] && return 0
+  done <<<"$listing"
+  return 1
+}
+
+backup_remote_lftp() {
+  local listing next_suffix backup_name
+  listing="$(lftp_remote_parent_listing)"
+
+  if ! remote_target_exists "$listing"; then
+    echo "リモート ${REMOTE_TARGET_NAME}/ は存在しません。バックアップ退避をスキップします。"
+    return 0
+  fi
+
+  next_suffix="$(compute_next_backup_suffix "$listing")"
+  if (( 10#$next_suffix > BACKUP_MAX )); then
+    echo "エラー: バックアップ番号が上限 (${BACKUP_MAX}) を超えます。" >&2
+    exit 1
+  fi
+  backup_name="${REMOTE_TARGET_NAME}.${next_suffix}"
+
+  if [[ "$DRY_RUN" -eq 1 ]]; then
+    echo "バックアップ（ドライラン）: ${REMOTE_TARGET_NAME}/ → ${backup_name}/"
+    return 0
+  fi
+
+  local lftp_script
+  lftp_script="$(mktemp)"
+  chmod 600 "$lftp_script"
+  {
+    write_lftp_connection
+    [[ "$REMOTE_PARENT" != "." ]] && printf 'cd %q\n' "/${REMOTE_PARENT}"
+    printf 'mv %q %q\n' "$REMOTE_TARGET_NAME" "$backup_name"
+    echo "bye"
+  } >"$lftp_script"
+  echo "バックアップ: ${REMOTE_TARGET_NAME}/ → ${backup_name}/"
+  lftp -f "$lftp_script"
+  rm -f "$lftp_script"
+}
+
+upload_with_lftp() {
+  local lftp_script
+  lftp_script="$(mktemp)"
+  chmod 600 "$lftp_script"
+  trap 'rm -f "$lftp_script"' RETURN
+
+  backup_remote_lftp
+
+  {
+    write_lftp_connection
+
+    # mirror でディレクトリ転送（--include で対象ファイルのみ）
+    local mirror_args=( -R --verbose --only-newer )
+    if [[ "$DRY_RUN" -eq 1 ]]; then
+      mirror_args+=( --dry-run )
+    fi
+    if [[ "$FTP_MIRROR_DELETE" == "1" ]]; then
+      mirror_args+=( --delete )
+    fi
+    printf 'mirror'
+    for a in "${mirror_args[@]}"; do
+      printf ' %q' "$a"
+    done
+    # 各対象ファイルを include で指定
+    for f in "${UPLOAD_FILES[@]}"; do
+      printf ' --include %q' "$f"
+    done
+    # .git ディレクトリとその他の不要ファイルを除外
+    printf ' --exclude %q' '.git/'
+    printf ' --exclude %q' '*.sh'
+    printf ' --exclude %q' '*.md'
+    printf ' --exclude %q' 'test.html'
+    printf ' --exclude %q' 'deploy.env'
+    printf ' --exclude %q' 'node_modules/'
+    # それ以外はすべて除外
+    printf ' --exclude %q' '*'
+    printf ' %q %q\n' "${SCRIPT_DIR}/" "${REMOTE_PATH}/"
+
+    echo "bye"
+  } >"$lftp_script"
+
+  lftp -f "$lftp_script"
+}
+
+if ! command -v lftp >/dev/null 2>&1; then
+  echo "エラー: lftp が見つかりません。" >&2
+  echo "  インストール例: sudo apt install lftp" >&2
+  exit 1
+fi
+
+echo "=== Suno Prompt Maker FTP デプロイ ==="
+echo "転送対象: ${UPLOAD_FILES[*]}"
+echo "アップロード先: ftp://${FTP_SERVER}/${REMOTE_PATH}/"
+[[ "$REMOTE_PARENT" != "." ]] && echo "バックアップ先: ftp://${FTP_SERVER}/${REMOTE_PARENT}/${REMOTE_TARGET_NAME}.NNN/"
+[[ "$DRY_RUN" -eq 1 ]] && echo "モード: ドライラン（転送しません）"
+echo ""
+
+upload_with_lftp
+echo "完了."
