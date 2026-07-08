@@ -50,43 +50,77 @@ function extractCategoriesFromJp(text) {
 function jpToEnTokens(text) {
   const tokens = [];
 
-  // CATEGORIESの日本語名から英語キーワードを生成
-  const catMap = {
+  // 音楽関連の日本語→英語マッピング
+  const jpEnMap = {
+    // カテゴリ名
     'ジャンル': ['genre', 'pop', 'rock', 'jazz', 'electronic'],
     'スタイル': ['style', 'smooth', 'energetic', 'calm'],
     'ムード': ['mood', 'happy', 'sad', 'dark', 'bright'],
     'テンポ': ['tempo', 'fast', 'slow', 'bpm'],
     '高速テンポ': ['fast', 'speed', 'energetic', 'upbeat'],
     'スローテンポ': ['slow', 'relaxed', 'calm', 'gentle'],
-    '時代・質感': ['era', 'vintage', 'retro', 'modern'],
-    '80年代特化': ['80s', 'retro', 'synthwave', 'synth'],
     'メジャーコード': ['major', 'happy', 'bright', 'uplifting'],
     'マイナーコード': ['minor', 'sad', 'dark', 'melancholic'],
     'キラキラ': ['sparkle', 'bright', 'shimmer', 'bell'],
     'ダーク': ['dark', 'heavy', 'ominous', 'shadow'],
-    '演奏記法': ['technique', 'picking', 'strumming', 'articulation'],
-    '楽器': ['instrument', 'guitar', 'piano', 'drums'],
     'ピアノ': ['piano', 'keys', 'keyboard'],
     '和楽器': ['traditional', 'japanese', 'koto', 'shamisen'],
-    'ギター挙動': ['guitar', 'riff', 'strum', 'picking'],
-    'ベース挙動': ['bass', 'groove', 'low-end'],
-    'ドラム・打楽器': ['drums', 'percussion', 'beat', 'rhythm'],
-    'リズム・グルーヴ': ['rhythm', 'groove', 'beat', 'feel'],
-    'シンセ音色': ['synth', 'synthesizer', 'electronic'],
-    'LFO': ['lfo', 'modulation', 'wobble'],
-    '音の動き': ['motion', 'movement', 'dynamic'],
-    '音像・空間': ['space', 'reverb', 'delay', 'stereo'],
-    'エフェクト・ミックス': ['fx', 'effects', 'mix', 'master'],
-    'ディストーション': ['distortion', 'overdrive', 'fuzz'],
-    'ノイズ': ['noise', 'static', 'texture'],
-    '展開・構成': ['structure', 'arrangement', 'section'],
-    'アレンジ密度': ['density', 'arrangement', 'layer'],
-    'ボーカル表現': ['vocal', 'singing', 'voice'],
-    'コーラス・ハーモニー': ['chorus', 'harmony', 'backing'],
-    '禁止・抑制': ['avoid', 'no', 'without'],
+
+    // 音楽ジャンル
+    'カフェ': ['cafe', 'lounge', 'coffee', 'chill'],
+    'カフェミュージック': ['cafe', 'lounge', 'chill', 'background'],
+    'チル': ['chill', 'relaxed', 'mellow', 'laid-back'],
+    'アコースティック': ['acoustic', 'guitar', 'folk', 'gentle'],
+    'ロック': ['rock', 'guitar', 'riff', 'drums'],
+    'ポップ': ['pop', 'catchy', 'upbeat', 'bright'],
+    'ジャズ': ['jazz', 'smooth', 'saxophone', 'piano'],
+    'エレクトロ': ['electronic', 'synth', 'dance', 'beat'],
+    'アンビエント': ['ambient', 'atmospheric', 'pad', 'space'],
+    'フォーク': ['folk', 'acoustic', 'guitar', 'gentle'],
+    'シティポップ': ['city', 'pop', 'urban', 'night'],
+    'シンセウェーブ': ['synthwave', 'retro', '80s', 'synth'],
+    'ヒップホップ': ['hip', 'hop', 'beat', 'rap'],
+    'レゲエ': ['reggae', 'offbeat', 'bass', 'island'],
+    'メタル': ['metal', 'heavy', 'distorted', 'aggressive'],
+    'パンク': ['punk', 'raw', 'energy', 'fast'],
+
+    // 雰囲気・ムード
+    'おしゃれ': ['stylish', 'elegant', 'sophisticated'],
+    'オシャレ': ['stylish', 'elegant', 'sophisticated'],
+    'リラックス': ['relax', 'calm', 'peaceful', 'soft'],
+    '元気': ['energetic', 'upbeat', 'lively', 'bright'],
+    '静か': ['quiet', 'calm', 'peaceful', 'soft'],
+    '激しい': ['heavy', 'aggressive', 'intense', 'powerful'],
+    '甘い': ['sweet', 'soft', 'gentle', 'romantic'],
+    '切ない': ['melancholic', 'sad', 'emotional', 'bittersweet'],
+    '明るい': ['bright', 'happy', 'cheerful', 'upbeat'],
+    '暗い': ['dark', 'moody', 'gloomy', 'shadow'],
+    'エレガント': ['elegant', 'sophisticated', 'refined'],
+    'ワイルド': ['wild', 'raw', 'energetic', 'aggressive'],
+
+    // 場面
+    '夜': ['night', 'nocturnal', 'dark', 'moody'],
+    '朝': ['morning', 'dawn', 'sunrise', 'bright'],
+    '夏': ['summer', 'beach', 'tropical', 'sunny'],
+    '冬': ['winter', 'snow', 'cold', 'christmas'],
+    '雨': ['rain', 'rainy', 'wet', 'melancholic'],
+    '海': ['ocean', 'sea', 'beach', 'waves'],
+
+    // 動作
+    '流れる': ['flowing', 'smooth', 'gentle'],
+    '踊る': ['dance', 'groove', 'rhythm'],
+    '弾く': ['play', 'guitar', 'piano'],
+    '歌う': ['sing', 'vocal', 'voice'],
+
+    // その他
+    '曲': ['music', 'song', 'melody'],
+    '音': ['sound', 'tone', 'audio'],
+    'リズム': ['rhythm', 'beat', 'groove'],
+    'メロディー': ['melody', 'tune', 'song'],
+    'ハーモニー': ['harmony', 'chord'],
   };
 
-  for (const [jp, en] of Object.entries(catMap)) {
+  for (const [jp, en] of Object.entries(jpEnMap)) {
     if (text.includes(jp)) {
       tokens.push(...en);
     }
