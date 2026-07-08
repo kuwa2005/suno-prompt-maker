@@ -35,7 +35,9 @@ const JP_KEYWORD_MAP = {
   'チル': ['chill', 'relax', 'mellow', 'laid-back'],
   'アコースティック': ['acoustic', 'guitar', 'folk', 'gentle'],
   'おしゃれ': ['stylish', 'elegant', 'sophisticated'],
-  'カフェ': ['cafe', 'lounge', 'coffee'],
+  'オシャレ': ['stylish', 'elegant', 'sophisticated'],
+  '流れる': ['flowing', 'smooth', 'gentle'],
+  '曲': ['music', 'song', 'melody'],
   '静か': ['quiet', 'calm', 'peaceful', 'soft'],
   '激しい': ['heavy', 'aggressive', 'intense', 'powerful'],
   'メタル': ['metal', 'heavy', 'distorted', 'aggressive'],
@@ -50,6 +52,8 @@ const JP_KEYWORD_MAP = {
   '冬': ['winter', 'snow', 'cold', 'christmas'],
   '夜': ['night', 'nocturnal', 'dark', 'moody'],
   '朝': ['morning', 'dawn', 'sunrise', 'bright'],
+  'カフェ': ['cafe', 'lounge', 'coffee'],
+  'チルい': ['chill', 'relaxed', 'mellow'],
 };
 
 export async function initTernlight() {
