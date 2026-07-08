@@ -2,127 +2,103 @@ let isInitialized = false;
 let embedFn = null;
 let cosineSimFn = null;
 let fallbackMode = false;
+let translatorReady = false;
 
-// CATEGORIES から日本語→カテゴリIDのマッピングを動的に構築
-function buildJpToCategoryMap() {
-  const map = {};
-  for (const [catId, cat] of Object.entries(CATEGORIES)) {
-    // カテゴリ名をキーワードとして追加
-    if (cat.name) map[cat.name] = catId;
-    if (cat.label && cat.label !== cat.name) map[cat.label] = catId;
-    // 説明文からキーワードを抽出
-    if (cat.desc) {
-      const words = cat.desc.match(/[\u3040-\u309f\u30a0-\u30ff\u4e00-\u9fafa-zA-Z]+/g);
-      if (words) {
-        for (const word of words) {
-          if (word.length >= 2 && !map[word]) {
-            map[word] = catId;
-          }
-        }
+// Chrome Translator API の初期化
+let translator = null;
+
+async function initTranslator() {
+  if ('Translator' in self) {
+    try {
+      const availability = await Translator.availability({
+        sourceLanguage: 'ja',
+        targetLanguage: 'en',
+      });
+      if (availability === 'available' || availability === 'downloadable') {
+        translator = await Translator.create({
+          sourceLanguage: 'ja',
+          targetLanguage: 'en',
+        });
+        translatorReady = true;
+        console.log('Translator API ready');
       }
+    } catch (e) {
+      console.warn('Translator API not available:', e);
     }
   }
-  return map;
 }
 
-// 日本語テキストからカテゴリIDを抽出
-function extractCategoriesFromJp(text) {
-  const map = buildJpToCategoryMap();
-  const found = {};
-
-  // 長いキーワードから順にマッチング（最長一致）
-  const sortedKeys = Object.keys(map).sort((a, b) => b.length - a.length);
-  const matched = new Set();
-
-  for (const key of sortedKeys) {
-    if (text.includes(key) && !matched.has(key)) {
-      const catId = map[key];
-      if (!found[catId]) found[catId] = 0;
-      found[catId] += key.length; // マッチした文字数をスコアに
-      matched.add(key);
+// 日本語テキストを英語に翻訳
+async function translateJpToEn(text) {
+  if (translatorReady && translator) {
+    try {
+      return await translator.translate(text);
+    } catch (e) {
+      console.warn('Translation failed:', e);
     }
   }
-
-  return found;
+  return null;
 }
 
-// 日本語テキストを英語トークンに変換（フォールバック用）
+// 日本語→英語のフォールバックマッピング
+const JP_FALLBACK_MAP = {
+  'ジャンル': 'genre',
+  'スタイル': 'style',
+  'ムード': 'mood',
+  'テンポ': 'tempo',
+  '高速テンポ': 'fast tempo',
+  'スローテンポ': 'slow tempo',
+  'メジャーコード': 'major chord',
+  'マイナーコード': 'minor chord',
+  'キラキラ': 'sparkle bright',
+  'ダーク': 'dark heavy',
+  'ピアノ': 'piano',
+  '和楽器': 'traditional japanese',
+  'カフェ': 'cafe lounge',
+  'チル': 'chill relaxed',
+  'アコースティック': 'acoustic guitar',
+  'ロック': 'rock guitar',
+  'ポップ': 'pop catchy',
+  'ジャズ': 'jazz smooth',
+  'エレクトロ': 'electronic synth',
+  'アンビエント': 'ambient atmospheric',
+  'フォーク': 'folk acoustic',
+  'シティポップ': 'city pop',
+  'シンセウェーブ': 'synthwave retro',
+  'ヒップホップ': 'hip hop beat',
+  'レゲエ': 'reggae offbeat',
+  'メタル': 'metal heavy',
+  'パンク': 'punk raw',
+  'おしゃれ': 'stylish elegant',
+  'オシャレ': 'stylish elegant',
+  'リラックス': 'relax calm',
+  '元気': 'energetic upbeat',
+  '静か': 'quiet calm',
+  '激しい': 'heavy aggressive',
+  '甘い': 'sweet soft',
+  '切ない': 'melancholic sad',
+  '明るい': 'bright happy',
+  '暗い': 'dark moody',
+  '夜': 'night dark',
+  '朝': 'morning bright',
+  '夏': 'summer beach',
+  '冬': 'winter snow',
+  '雨': 'rain melancholic',
+  '海': 'ocean beach',
+  '流れる': 'flowing smooth',
+  '踊る': 'dance groove',
+  '曲': 'music melody',
+  'リズム': 'rhythm beat',
+};
+
+// 日本語テキストを英語トークンに変換
 function jpToEnTokens(text) {
   const tokens = [];
 
-  // 音楽関連の日本語→英語マッピング
-  const jpEnMap = {
-    // カテゴリ名
-    'ジャンル': ['genre', 'pop', 'rock', 'jazz', 'electronic'],
-    'スタイル': ['style', 'smooth', 'energetic', 'calm'],
-    'ムード': ['mood', 'happy', 'sad', 'dark', 'bright'],
-    'テンポ': ['tempo', 'fast', 'slow', 'bpm'],
-    '高速テンポ': ['fast', 'speed', 'energetic', 'upbeat'],
-    'スローテンポ': ['slow', 'relaxed', 'calm', 'gentle'],
-    'メジャーコード': ['major', 'happy', 'bright', 'uplifting'],
-    'マイナーコード': ['minor', 'sad', 'dark', 'melancholic'],
-    'キラキラ': ['sparkle', 'bright', 'shimmer', 'bell'],
-    'ダーク': ['dark', 'heavy', 'ominous', 'shadow'],
-    'ピアノ': ['piano', 'keys', 'keyboard'],
-    '和楽器': ['traditional', 'japanese', 'koto', 'shamisen'],
-
-    // 音楽ジャンル
-    'カフェ': ['cafe', 'lounge', 'coffee', 'chill'],
-    'カフェミュージック': ['cafe', 'lounge', 'chill', 'background'],
-    'チル': ['chill', 'relaxed', 'mellow', 'laid-back'],
-    'アコースティック': ['acoustic', 'guitar', 'folk', 'gentle'],
-    'ロック': ['rock', 'guitar', 'riff', 'drums'],
-    'ポップ': ['pop', 'catchy', 'upbeat', 'bright'],
-    'ジャズ': ['jazz', 'smooth', 'saxophone', 'piano'],
-    'エレクトロ': ['electronic', 'synth', 'dance', 'beat'],
-    'アンビエント': ['ambient', 'atmospheric', 'pad', 'space'],
-    'フォーク': ['folk', 'acoustic', 'guitar', 'gentle'],
-    'シティポップ': ['city', 'pop', 'urban', 'night'],
-    'シンセウェーブ': ['synthwave', 'retro', '80s', 'synth'],
-    'ヒップホップ': ['hip', 'hop', 'beat', 'rap'],
-    'レゲエ': ['reggae', 'offbeat', 'bass', 'island'],
-    'メタル': ['metal', 'heavy', 'distorted', 'aggressive'],
-    'パンク': ['punk', 'raw', 'energy', 'fast'],
-
-    // 雰囲気・ムード
-    'おしゃれ': ['stylish', 'elegant', 'sophisticated'],
-    'オシャレ': ['stylish', 'elegant', 'sophisticated'],
-    'リラックス': ['relax', 'calm', 'peaceful', 'soft'],
-    '元気': ['energetic', 'upbeat', 'lively', 'bright'],
-    '静か': ['quiet', 'calm', 'peaceful', 'soft'],
-    '激しい': ['heavy', 'aggressive', 'intense', 'powerful'],
-    '甘い': ['sweet', 'soft', 'gentle', 'romantic'],
-    '切ない': ['melancholic', 'sad', 'emotional', 'bittersweet'],
-    '明るい': ['bright', 'happy', 'cheerful', 'upbeat'],
-    '暗い': ['dark', 'moody', 'gloomy', 'shadow'],
-    'エレガント': ['elegant', 'sophisticated', 'refined'],
-    'ワイルド': ['wild', 'raw', 'energetic', 'aggressive'],
-
-    // 場面
-    '夜': ['night', 'nocturnal', 'dark', 'moody'],
-    '朝': ['morning', 'dawn', 'sunrise', 'bright'],
-    '夏': ['summer', 'beach', 'tropical', 'sunny'],
-    '冬': ['winter', 'snow', 'cold', 'christmas'],
-    '雨': ['rain', 'rainy', 'wet', 'melancholic'],
-    '海': ['ocean', 'sea', 'beach', 'waves'],
-
-    // 動作
-    '流れる': ['flowing', 'smooth', 'gentle'],
-    '踊る': ['dance', 'groove', 'rhythm'],
-    '弾く': ['play', 'guitar', 'piano'],
-    '歌う': ['sing', 'vocal', 'voice'],
-
-    // その他
-    '曲': ['music', 'song', 'melody'],
-    '音': ['sound', 'tone', 'audio'],
-    'リズム': ['rhythm', 'beat', 'groove'],
-    'メロディー': ['melody', 'tune', 'song'],
-    'ハーモニー': ['harmony', 'chord'],
-  };
-
-  for (const [jp, en] of Object.entries(jpEnMap)) {
+  // フォールバックマッピングからキーワード抽出
+  for (const [jp, en] of Object.entries(JP_FALLBACK_MAP)) {
     if (text.includes(jp)) {
-      tokens.push(...en);
+      tokens.push(...en.split(' '));
     }
   }
 
@@ -131,6 +107,9 @@ function jpToEnTokens(text) {
 
 export async function initTernlight() {
   if (isInitialized) return;
+
+  // Translator API を並行で初期化
+  initTranslator();
 
   try {
     const module = await import('https://cdn.jsdelivr.net/npm/@ternlight/base@latest/dist/index.mjs');
@@ -173,7 +152,71 @@ export function isFallbackMode() {
   return fallbackMode;
 }
 
-// 日本語入力からカテゴリを直接抽出（auto-setter.jsで使用）
-export function extractCategoriesDirectly(text) {
-  return extractCategoriesFromJp(text);
+// Chrome Translator API を使用した翻訳付きのカテゴリ抽出
+export async function extractCategoriesWithTranslation(text) {
+  // まずフォールバックマッピングで試行
+  const fallbackResult = extractCategoriesFromFallback(text);
+
+  // Chrome Translator API が利用可能なら翻訳を試行
+  if (translatorReady) {
+    const enText = await translateJpToEn(text);
+    if (enText) {
+      console.log('Translated:', enText);
+      const translatedResult = extractCategoriesFromEnText(enText);
+      // 翻訳結果を優先
+      if (Object.keys(translatedResult).length > 0) {
+        return translatedResult;
+      }
+    }
+  }
+
+  return fallbackResult;
+}
+
+// フォールバックマッピングからカテゴリを抽出
+function extractCategoriesFromFallback(text) {
+  const found = {};
+  for (const [jp, en] of Object.entries(JP_FALLBACK_MAP)) {
+    if (text.includes(jp)) {
+      const catId = findCategoryByKeyword(en);
+      if (catId) {
+        if (!found[catId]) found[catId] = 0;
+        found[catId] += jp.length;
+      }
+    }
+  }
+  return found;
+}
+
+// 英語テキストからカテゴリを抽出
+function extractCategoriesFromEnText(enText) {
+  const lower = enText.toLowerCase();
+  const found = {};
+
+  for (const [catId, cat] of Object.entries(CATEGORIES)) {
+    const keywords = [
+      cat.name.toLowerCase(),
+      ...(cat.desc ? cat.desc.toLowerCase().split(/\s+/) : []),
+    ];
+
+    for (const kw of keywords) {
+      if (kw.length >= 3 && lower.includes(kw)) {
+        if (!found[catId]) found[catId] = 0;
+        found[catId] += kw.length;
+      }
+    }
+  }
+
+  return found;
+}
+
+// キーワードからカテゴリIDを検索
+function findCategoryByKeyword(keyword) {
+  const lower = keyword.toLowerCase();
+  for (const [catId, cat] of Object.entries(CATEGORIES)) {
+    if (cat.name.toLowerCase().includes(lower)) return catId;
+    if (cat.label && cat.label.toLowerCase().includes(lower)) return catId;
+  }
+  // デフォルトで genre を返す
+  return 'genre';
 }
