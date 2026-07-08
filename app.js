@@ -487,6 +487,9 @@
           }
         }
 
+        // メインプロンプトにテンプレートのプロンプトを設定
+        document.getElementById('extra').value = tpl.prompt;
+
         document.querySelectorAll('.tab').forEach((t) => t.classList.remove('active'));
         document.querySelectorAll('.tab-content').forEach((c) => c.classList.remove('active'));
         document.querySelector('[data-tab="create"]').classList.add('active');
