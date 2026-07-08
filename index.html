@@ -26,10 +26,6 @@
   </header>
 
   <main class="max-w-7xl mx-auto px-6 py-6">
-    <!-- フォールバックモード通知 -->
-    <div id="fallback-notice" class="hidden mb-4 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-md text-sm text-yellow-600 dark:text-yellow-400">
-      AI機能はフォールバックモードで動作中です。意味検索の精度が低下します。
-    </div>
     <!-- プロンプト作成タブ -->
     <section id="tab-create" class="tab-content active">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -336,10 +332,6 @@
 
         // translateMainPrompt をグローバルに公開
         window.translateMainPrompt = translateMainPrompt;
-
-        if (isFallbackMode()) {
-          document.getElementById('fallback-notice').classList.remove('hidden');
-        }
         
         // AI反映ボタンのイベントハンドラ
         document.getElementById('btn-ai-set').addEventListener('click', async () => {
