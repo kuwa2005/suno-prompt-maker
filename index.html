@@ -66,9 +66,44 @@
             <textarea id="ai-input" rows="2" 
               placeholder="例：お洒落なカフェで流れるチルいアコースティック曲"
               class="flex-1 bg-surface border border-border text-text px-3 py-2 rounded-md text-sm resize-none"></textarea>
-            <button id="btn-ai-set" class="bg-accent text-white px-4 rounded-md text-sm hover:bg-accent-hover transition-colors whitespace-nowrap">
-              AIで反映 ⚡️
-            </button>
+            <div class="flex flex-col gap-1">
+              <select id="ai-preset" class="bg-surface border border-border text-text px-2 py-1 rounded text-xs">
+                <option value="">プリセットを選択</option>
+                <option value="Cafe lounge music, chill vibes, acoustic guitar, soft piano, relaxed atmosphere">カフェラウンジ</option>
+                <option value="Upbeat dance pop, catchy hooks, energetic beat, summer party vibe">ダンスポップ</option>
+                <option value="Dark cinematic atmosphere, orchestral tension, dramatic build, epic scale">シネマティックダーク</option>
+                <option value="Retro 80s synthwave, neon lights, driving bass, nostalgic arpeggios">シンセウェーブ</option>
+                <option value="Acoustic folk, fingerpicking guitar, gentle vocals, storytelling, nature">フォーク</option>
+                <option value="Heavy metal, distorted guitars, aggressive drums, powerful vocals, dark riffs">ヘヴィメタル</option>
+                <option value="Lo-fi hip hop, dusty drums, mellow piano, vinyl noise, chill study beat">ローファイ</option>
+                <option value="Jazz club atmosphere, smooth saxophone, piano trio, late night vibe">ジャズ</option>
+                <option value="Kawaii future bass, cute vocal chops, bright synths, playful energy">カワイイ</option>
+                <option value="Epic orchestral, full symphony, dramatic strings, brass fanfare, majestic">オーケストラ</option>
+                <option value="Deep house, minimal groove, rolling bassline, club atmosphere, hypnotic">ハウス</option>
+                <option value="Trap, heavy 808, rattling hi-hats, dark atmosphere, aggressive flow">トラップ</option>
+                <option value="City Pop, 80s Japanese, funky bass, smooth vocals, retro synthesizer">シティポップ</option>
+                <option value="Ambient soundscape, atmospheric pads, evolving textures, ethereal, spacious">アンビエント</option>
+                <option value="Rock anthem, electric guitar riffs, driving drums, powerful vocals, arena sound">ロック</option>
+                <option value="Electronic dance, synth drops, festival energy, euphoric, high BPM">EDM</option>
+                <option value="Piano ballad, emotional chords, delicate melody, soft dynamics, intimate">ピアノバラード</option>
+                <option value="Reggae, offbeat guitar, deep bass, relaxed drums, island vibe">レゲエ</option>
+                <option value="Hip hop, boom bap drums, sampled loops, gritty bass, head-nod groove">ヒップホップ</option>
+                <option value="Tropical house, sunny vibes, steel drums, laid-back beat, beach party">トロピカル</option>
+                <option value="Horror soundtrack, eerie atmosphere, tension build, dark drones, unsettling">ホラー</option>
+                <option value="Video game music, chiptune, retro synths, catchy melody, pixel art vibe">ゲーム音楽</option>
+                <option value="Gospel, choir harmonies, soulful vocals, uplifting chords, inspirational">ゴスペル</option>
+                <option value="Bossa nova, nylon guitar, soft vocals, gentle percussion, jazz chords">ボサノバ</option>
+                <option value="Drum and bass, fast breakbeats, deep basslines, liquid melodies, energetic">ドラムンベース</option>
+                <option value="Synthpop, catchy hooks, electronic beats, retro-futuristic, bright synths">シンセポップ</option>
+                <option value="Waltz, 3/4 time, graceful melody, orchestral arrangement, elegant, flowing">ワルツ</option>
+                <option value="Afrobeat, polyrhythmic drums, funky guitar, horn section, groovy bass">アフロビート</option>
+                <option value="Shoegaze, wall of guitars, dreamy vocals, heavy reverb, hazy atmosphere">シューゲイザー</option>
+                <option value="Minimal techno, driving kick, hypnotic loops, industrial texture, dark club">テクノ</option>
+              </select>
+              <button id="btn-ai-set" class="bg-accent text-white px-4 py-1 rounded text-xs hover:bg-accent-hover transition-colors whitespace-nowrap">
+                AIで反映 ⚡️
+              </button>
+            </div>
           </div>
         </div>
 
@@ -331,6 +366,14 @@
           // weightSliders と updateWeightLabels は app.js のグローバル変数
           autoSetWeights(input, window.weightSliders, window.updateWeightLabels);
           showToast('AIで設定を反映しました');
+        });
+
+        // プリセットドロップダウンのイベントハンドラ
+        document.getElementById('ai-preset').addEventListener('change', (e) => {
+          const value = e.target.value;
+          if (value) {
+            document.getElementById('ai-input').value = value;
+          }
         });
         
         // 履歴検索のイベントハンドラ
