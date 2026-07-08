@@ -1,11 +1,16 @@
 import { searchTags, extractCategoriesWithTranslation, isFallbackMode } from './tag-index.js';
 
 export async function autoSetWeights(inputText, weightSliders, updateWeightLabels) {
+  console.log('autoSetWeights called with:', inputText);
+  console.log('isFallbackMode:', isFallbackMode());
+
   let categoryScores = {};
 
   if (isFallbackMode()) {
     // フォールバックモード: 翻訳機能付きのカテゴリ抽出
+    console.log('Using extractCategoriesWithTranslation');
     categoryScores = await extractCategoriesWithTranslation(inputText);
+    console.log('categoryScores from extraction:', categoryScores);
 
     // 英語トークンで追加検索
     const enTokens = [];
@@ -17,9 +22,13 @@ export async function autoSetWeights(inputText, weightSliders, updateWeightLabel
       }
     }
 
+    console.log('enTokens for search:', enTokens);
+
     if (enTokens.length > 0) {
       const enQuery = enTokens.join(' ');
+      console.log('Searching with:', enQuery);
       const results = searchTags(enQuery, 50);
+      console.log('searchTags results:', results.length);
       for (const result of results) {
         if (result.score > 0.05) {
           if (!categoryScores[result.category]) {
@@ -42,10 +51,11 @@ export async function autoSetWeights(inputText, weightSliders, updateWeightLabel
     }
   }
 
-  console.log('categoryScores:', categoryScores);
+  console.log('Final categoryScores:', categoryScores);
 
   // スコアを正規化して%に変換
   const totalScore = Object.values(categoryScores).reduce((a, b) => a + b, 0);
+  console.log('totalScore:', totalScore);
 
   // 全スライダーを0%にリセット
   for (const id of Object.keys(weightSliders)) {
