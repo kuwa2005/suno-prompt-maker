@@ -1,18 +1,49 @@
-import { searchTags } from './tag-index.js';
+import { searchTags, extractCategoriesDirectly, isFallbackMode } from './tag-index.js';
 
 export function autoSetWeights(inputText, weightSliders, updateWeightLabels) {
-  const results = searchTags(inputText, 100);
+  let categoryScores = {};
 
-  // 類似度 > 0.05 のカテゴリを集約（フォールバックモード対応）
-  const categoryScores = {};
-  for (const result of results) {
-    if (result.score > 0.05) {
-      if (!categoryScores[result.category]) {
-        categoryScores[result.category] = 0;
+  if (isFallbackMode()) {
+    // フォールバックモード: 日本語からカテゴリを直接抽出
+    categoryScores = extractCategoriesDirectly(inputText);
+
+    // 日本語キーワードから英語トークンを生成して検索
+    const enTokens = [];
+    for (const [catId, score] of Object.entries(categoryScores)) {
+      const cat = CATEGORIES[catId];
+      if (cat) {
+        enTokens.push(...cat.name.toLowerCase().split(/\s+/));
+        if (cat.desc) enTokens.push(...cat.desc.toLowerCase().split(/\s+/));
       }
-      categoryScores[result.category] += result.score;
+    }
+
+    // 英語トークンで追加検索
+    if (enTokens.length > 0) {
+      const enQuery = enTokens.join(' ');
+      const results = searchTags(enQuery, 50);
+      for (const result of results) {
+        if (result.score > 0.05) {
+          if (!categoryScores[result.category]) {
+            categoryScores[result.category] = 0;
+          }
+          categoryScores[result.category] += result.score;
+        }
+      }
+    }
+  } else {
+    // ternlight モード: 従来の検索
+    const results = searchTags(inputText, 100);
+    for (const result of results) {
+      if (result.score > 0.3) {
+        if (!categoryScores[result.category]) {
+          categoryScores[result.category] = 0;
+        }
+        categoryScores[result.category] += result.score;
+      }
     }
   }
+
+  console.log('categoryScores:', categoryScores);
 
   // スコアを正規化して%に変換
   const totalScore = Object.values(categoryScores).reduce((a, b) => a + b, 0);

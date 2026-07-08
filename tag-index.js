@@ -1,4 +1,4 @@
-import { embedText, cosineSimilarity } from './ternlight-engine.js';
+import { embedText, cosineSimilarity, isFallbackMode, extractCategoriesDirectly } from './ternlight-engine.js';
 
 let tagIndex = null;
 const CACHE_KEY = 'suno_tag_vectors';
@@ -44,3 +44,5 @@ export function searchTags(query, topK = 10) {
   results.sort((a, b) => b.score - a.score);
   return results.slice(0, topK);
 }
+
+export { isFallbackMode, extractCategoriesDirectly };
