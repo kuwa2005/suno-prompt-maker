@@ -110,34 +110,27 @@ export async function initTernlight() {
   // Translator API を並行で初期化
   initTranslator();
 
-  try {
-    const module = await import('https://cdn.jsdelivr.net/npm/@ternlight/base@latest/dist/index.mjs');
-    embedFn = module.embed;
-    cosineSimFn = module.cosineSim;
-    isInitialized = true;
-  } catch (error) {
-    // ternlight CDN が利用できない場合はフォールバックモードで動作
-    fallbackMode = true;
+  // ternlight はバンドラーが必要なため、フォールバックモードで動作
+  fallbackMode = true;
 
-    embedFn = (text) => {
-      // 英語テキストの場合は単語を直接返す
-      if (/[a-zA-Z]/.test(text) && !/[\u3040-\u309f\u30a0-\u30ff\u4e00-\u9faf]/.test(text)) {
-        return text.toLowerCase().split(/[\s,]+/).filter(w => w.length > 2);
-      }
-      // 日本語テキストの場合はマッピングを使用
-      return jpToEnTokens(text);
-    };
+  embedFn = (text) => {
+    // 英語テキストの場合は単語を直接返す
+    if (/[a-zA-Z]/.test(text) && !/[\u3040-\u309f\u30a0-\u30ff\u4e00-\u9faf]/.test(text)) {
+      return text.toLowerCase().split(/[\s,]+/).filter(w => w.length > 2);
+    }
+    // 日本語テキストの場合はマッピングを使用
+    return jpToEnTokens(text);
+  };
 
-    cosineSimFn = (a, b) => {
-      if (!a.length || !b.length) return 0;
-      const setA = new Set(a);
-      const setB = new Set(b);
-      const intersection = [...setA].filter(x => setB.has(x));
-      return intersection.length / Math.max(setA.size, setB.size, 1);
-    };
+  cosineSimFn = (a, b) => {
+    if (!a.length || !b.length) return 0;
+    const setA = new Set(a);
+    const setB = new Set(b);
+    const intersection = [...setA].filter(x => setB.has(x));
+    return intersection.length / Math.max(setA.size, setB.size, 1);
+  };
 
-    isInitialized = true;
-  }
+  isInitialized = true;
 }
 
 export function embedText(text) {
