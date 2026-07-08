@@ -334,7 +334,7 @@ function extractCategoriesFromEnText(enText) {
   // カテゴリ固有のキーワードマッピング
   const categoryMap = {
     'genre': {
-      keywords: ['pop', 'rock', 'jazz', 'electronic', 'dance', 'hip hop', 'r&b', 'country', 'folk', 'blues', 'classical', 'ambient', 'reggae', 'metal', 'punk', 'soul', 'funk', 'disco', 'house', 'techno', 'trance', 'dubstep', 'drum and bass', 'synthwave', 'city pop', 'lo-fi', 'bossa nova', 'samba', 'tango', 'acoustic', 'indie', 'alternative', 'experimental', 'world', 'latin'],
+      keywords: ['pop', 'rock', 'jazz', 'electronic', 'dance', 'hip hop', 'r&b', 'country', 'folk', 'blues', 'classical', 'ambient', 'reggae', 'metal', 'punk', 'soul', 'funk', 'disco', 'house', 'techno', 'trance', 'dubstep', 'drum and bass', 'synthwave', 'city pop', 'lo-fi', 'bossa nova', 'samba', 'tango', 'acoustic', 'indie', 'alternative', 'experimental', 'world', 'latin', 'lounge', 'cafe', 'music', 'song', 'beat', 'bass', 'drum', 'guitar', 'piano', 'synth', 'vocal', 'rap', 'choir', 'orchestra', 'symphony', 'band'],
       weight: 1.0
     },
     'style': {
