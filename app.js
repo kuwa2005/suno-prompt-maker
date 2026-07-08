@@ -33,6 +33,9 @@
     setTimeout(() => removeToast(toast), duration);
   }
 
+  // グローバルに公開（モジュールスクリプトからアクセス可能にする）
+  window.showToast = showToast;
+
   function removeToast(toast) {
     if (toast.classList.contains('removing')) return;
     toast.classList.add('removing');
@@ -583,4 +586,5 @@
   // グローバル変数として公開（AI反映機能用）
   window.weightSliders = weightSliders;
   window.updateWeightLabels = updateWeightLabels;
+  window.renderHistory = renderHistory;
 })();
