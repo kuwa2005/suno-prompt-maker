@@ -325,17 +325,6 @@ function extractCategoriesFromFallback(text) {
 
   return found;
 }
-    'ベース': ['instrument'],
-    'ドラム': ['instrument'],
-    'シンセ': ['instrument'],
-    'ボーカル': ['vocal'],
-    'コーラス': ['vocal'],
-    '空間': ['space'],
-    'エフェクト': ['fx'],
-    'ノイズ': ['fx'],
-    '構成': ['structure'],
-    '密度': ['density'],
-  };
 
   for (const [jp, catIds] of Object.entries(jpCategoryMap)) {
     if (text.includes(jp)) {
