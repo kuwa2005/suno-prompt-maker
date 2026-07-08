@@ -36,7 +36,7 @@ FTP_REMOTE_PATH="/public_html/debugprint.com/suno-prompt-maker"
 
 # --- 転送対象ファイル -------------------------------------------------------
 UPLOAD_DIR="dist"
-UPLOAD_FILES=(index.html)
+UPLOAD_FILES=(index.html assets/)
 
 # --- 転送オプション（通常はそのままで可） -----------------------------------
 FTP_PASSIVE_MODE="${FTP_PASSIVE_MODE:-1}"
@@ -131,7 +131,10 @@ fi
 # 転送対象の存在チェック
 MISSING=()
 for f in "${UPLOAD_FILES[@]}"; do
-  [[ ! -f "${SCRIPT_DIR}/${f}" ]] && MISSING+=("$f")
+  if [[ -d "${SCRIPT_DIR}/${UPLOAD_DIR}/${f}" ]]; then
+    continue  # ディレクトリはスキップ
+  fi
+  [[ ! -f "${SCRIPT_DIR}/${UPLOAD_DIR}/${f}" ]] && MISSING+=("$f")
 done
 if [[ ${#MISSING[@]} -gt 0 ]]; then
   echo "エラー: 転送対象ファイルが見つかりません: ${MISSING[*]}" >&2
