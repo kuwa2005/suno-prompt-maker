@@ -56,7 +56,12 @@
         <!-- メインプロンプト -->
         <div class="col-span-full">
           <label for="extra" class="block text-sm text-text-dim mb-1">メインプロンプト</label>
-          <textarea id="extra" rows="4" placeholder="メインプロンプトを入力してください" class="w-full bg-surface border border-border text-text px-3 py-2.5 rounded-md text-sm resize-y transition-colors focus:outline-none focus:border-accent"></textarea>
+          <div class="flex gap-2">
+            <textarea id="extra" rows="4" placeholder="メインプロンプトを入力してください" class="flex-1 bg-surface border border-border text-text px-3 py-2.5 rounded-md text-sm resize-y transition-colors focus:outline-none focus:border-accent"></textarea>
+            <button id="btn-apply-prompt" class="bg-accent text-white px-3 rounded-md text-xs hover:bg-accent-hover transition-colors whitespace-nowrap self-start mt-1" title="メインプロンプトの内容からスライダーを自動設定">
+              スライダーに反映 ⚡️
+            </button>
+          </div>
         </div>
 
         <!-- AI入力エリア（非表示） -->
@@ -330,7 +335,7 @@
   <script src="app.js"></script>
   <script type="module" src="ternlight-engine.js"></script>
   <script type="module">
-    import { initTernlight, isFallbackMode } from './ternlight-engine.js';
+    import { initTernlight, isFallbackMode, translateMainPrompt } from './ternlight-engine.js';
     import { buildTagIndex } from './tag-index.js';
     import { createSearchBox, filterTagElements } from './semantic-search.js';
     import { autoSetWeights } from './auto-setter.js';
@@ -353,7 +358,10 @@
         await initTernlight();
         await buildTagIndex();
         addSearchBoxes();
-        
+
+        // translateMainPrompt をグローバルに公開
+        window.translateMainPrompt = translateMainPrompt;
+
         if (isFallbackMode()) {
           document.getElementById('fallback-notice').classList.remove('hidden');
         }
@@ -366,6 +374,15 @@
           // weightSliders と updateWeightLabels は app.js のグローバル変数
           await autoSetWeights(input, window.weightSliders, window.updateWeightLabels);
           window.showToast('AIで設定を反映しました');
+        });
+
+        // スライダーに反映ボタンのイベントハンドラ
+        document.getElementById('btn-apply-prompt').addEventListener('click', async () => {
+          const input = document.getElementById('extra').value.trim();
+          if (!input) return;
+          
+          await autoSetWeights(input, window.weightSliders, window.updateWeightLabels);
+          window.showToast('メインプロンプトからスライダーを設定しました');
         });
 
         // プリセットドロップダウンのイベントハンドラ
