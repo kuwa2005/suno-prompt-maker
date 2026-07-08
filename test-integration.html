@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>結合テスト: メインプロンプト → スライダー</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    .test-case { margin: 10px 0; padding: 15px; border: 1px solid #ccc; border-radius: 8px; }
+    .pass { background: #d4edda; border-color: #28a745; }
+    .fail { background: #f8d7da; border-color: #dc3545; }
+    .slider-result { margin-top: 5px; font-size: 12px; color: #666; }
+  </style>
+</head>
+<body>
+<h1>結合テスト: メインプロンプト → スライダー</h1>
+<div id="results"></div>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+<script type="module">
+  import { initTernlight, extractCategoriesWithTranslation } from './ternlight-engine.js';
+
+  const results = document.getElementById('results');
+
+  // テストケース
+  const testCases = [
+    { input: '80年代ポップス', expected: ['era', '年代80', 'genre', 'style'] },
+    { input: 'お洒落なカフェで流れるチルい曲', expected: ['style', 'mood'] },
+    { input: 'Cafe lounge music, chill vibes', expected: ['genre', 'style', 'mood'] },
+    { input: 'Heavy metal, distorted guitars', expected: ['genre', 'style'] },
+    { input: 'Uplifting Trance', expected: ['genre'] },
+  ];
+
+  let html = '<h2>結合テスト結果</h2>';
+
+  for (const tc of testCases) {
+    const categoryScores = await extractCategoriesWithTranslation(tc.input);
+    const found = Object.keys(categoryScores);
+    const passed = found.length > 0;
+    const status = passed ? '✓ PASS' : '✗ FAIL';
+
+    html += '<div class="test-case ' + (passed ? 'pass' : 'fail') + '">';
+    html += '<strong>' + status + '</strong>: "' + tc.input + '"<br>';
+    html += '見つかったカテゴリ: ' + JSON.stringify(found) + '<br>';
+    html += 'スコア: ' + JSON.stringify(categoryScores);
+    html += '</div>';
+  }
+
+  results.innerHTML = html;
+</script>
+</body>
+</html>
