@@ -1,6 +1,9 @@
 import { searchTags, extractCategoriesWithTranslation, isFallbackMode } from './tag-index.js';
 
-export async function autoSetWeights(inputText, weightSliders, updateWeightLabels, excludeGenre = true) {
+// AI反映時に除外するカテゴリ（ジャンルは意図的にランダム要素として残す）
+const EXCLUDED_CATEGORIES = ['genre'];
+
+export async function autoSetWeights(inputText, weightSliders, updateWeightLabels) {
   let categoryScores = {};
 
   if (isFallbackMode()) {
@@ -39,9 +42,9 @@ export async function autoSetWeights(inputText, weightSliders, updateWeightLabel
     }
   }
 
-  // メインプロンプトから反映する場合はジャンルも含める
-  if (excludeGenre) {
-    delete categoryScores['genre'];
+  // 除外カテゴリを削除
+  for (const catId of EXCLUDED_CATEGORIES) {
+    delete categoryScores[catId];
   }
 
   const totalScore = Object.values(categoryScores).reduce((a, b) => a + b, 0);
