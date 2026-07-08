@@ -7,6 +7,7 @@ export async function buildTagIndex() {
   const cached = sessionStorage.getItem(CACHE_KEY);
   if (cached) {
     tagIndex = JSON.parse(cached);
+    console.log('tagIndex loaded from cache:', tagIndex.length, 'items');
     return tagIndex;
   }
 
@@ -25,6 +26,7 @@ export async function buildTagIndex() {
 
   tagIndex = index;
   sessionStorage.setItem(CACHE_KEY, JSON.stringify(index));
+  console.log('tagIndex built:', tagIndex.length, 'items');
   return index;
 }
 
@@ -33,7 +35,12 @@ export function getTagIndex() {
 }
 
 export function searchTags(query, topK = 10) {
-  if (!tagIndex) return [];
+  console.log('searchTags called with:', query, 'tagIndex:', tagIndex ? tagIndex.length + ' items' : 'null');
+
+  if (!tagIndex) {
+    console.log('tagIndex is null, returning empty array');
+    return [];
+  }
 
   const queryVector = embedText(query);
   const results = tagIndex.map(item => ({
@@ -42,5 +49,6 @@ export function searchTags(query, topK = 10) {
   }));
 
   results.sort((a, b) => b.score - a.score);
+  console.log('searchTags returning:', results.slice(0, 5));
   return results.slice(0, topK);
 }
