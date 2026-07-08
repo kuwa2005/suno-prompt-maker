@@ -5,16 +5,11 @@ export function autoSetWeights(inputText, weightSliders, updateWeightLabels) {
 
   const results = searchTags(inputText, 100);
   console.log('searchTags results count:', results.length);
-  if (results.length > 0) {
-    console.log('First result:', results[0]);
-    console.log('Score of first result:', results[0].score);
-  }
 
-  // 類似度 > 0.3 のカテゴリを集約
+  // 類似度 > 0.05 のカテゴリを集約（フォールバックモード対応）
   const categoryScores = {};
   for (const result of results) {
-    console.log('Checking result:', result.tag, 'score:', result.score);
-    if (result.score > 0.3) {
+    if (result.score > 0.05) {
       if (!categoryScores[result.category]) {
         categoryScores[result.category] = 0;
       }
