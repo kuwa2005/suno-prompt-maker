@@ -3,58 +3,55 @@ let embedFn = null;
 let cosineSimFn = null;
 let fallbackMode = false;
 
-// 日本語テキストをトークン化する関数
-function tokenize(text) {
-  const lower = text.toLowerCase();
-  const tokens = [];
+// 日本語→英語キーワードマッピング
+const JP_EN_MAP = {
+  'カフェ': 'cafe lounge coffee',
+  'チル': 'chill relaxed mellow laid-back',
+  'チルい': 'chill relaxed mellow',
+  'アコースティック': 'acoustic guitar folk gentle',
+  'おしゃれ': 'stylish elegant sophisticated',
+  'オシャレ': 'stylish elegant sophisticated',
+  '流れる': 'flowing smooth gentle',
+  '曲': 'music song melody',
+  '静か': 'quiet calm peaceful soft',
+  '激しい': 'heavy aggressive intense powerful',
+  'メタル': 'metal heavy distorted aggressive',
+  'ロック': 'rock guitar riff drums',
+  'ポップ': 'pop catchy upbeat bright',
+  'ジャズ': 'jazz smooth saxophone piano',
+  'エレクトロ': 'electronic synth dance beat',
+  'アンビエント': 'ambient atmospheric pad space',
+  'フォーク': 'folk acoustic guitar gentle',
+  'シティ': 'city pop urban night',
+  '夏': 'summer beach tropical sunny',
+  '冬': 'winter snow cold christmas',
+  '夜': 'night nocturnal dark moody',
+  '朝': 'morning dawn sunrise bright',
+  '雨': 'rain rainy wet',
+  '海': 'ocean sea beach waves',
+  '山': 'mountain nature forest',
+  '街': 'city urban downtown',
+  '恋人': 'love romantic sweet',
+  '悲しい': 'sad melancholic sorrow',
+  '嬉しい': 'happy joyful bright',
+  '元気': 'energetic upbeat lively',
+  'リラックス': 'relax calm peaceful',
+  'ダンス': 'dance beat groovy',
+  'ビート': 'beat rhythm drum',
+  'メロディー': 'melody tune song',
+  'ハーモニー': 'harmony chord',
+};
 
-  // 英語单词を抽出
-  const englishWords = lower.match(/[a-z0-9]+/g);
-  if (englishWords) tokens.push(...englishWords);
-
-  // 日本語のひらがな・カタカナ・漢字を1文字ずつ抽出
-  const japaneseChars = lower.match(/[\u3040-\u309f\u30a0-\u30ff\u4e00-\u9faf]+/g);
-  if (japaneseChars) {
-    for (const str of japaneseChars) {
-      // 2-gramで抽出（意味のある単位を捉える）
-      for (let i = 0; i < str.length; i++) {
-        tokens.push(str[i]);
-        if (i < str.length - 1) {
-          tokens.push(str[i] + str[i + 1]);
-        }
-      }
+// 日本語テキストを英語キーワードに変換
+function jpToEnKeywords(text) {
+  const keywords = [];
+  for (const [jp, en] of Object.entries(JP_EN_MAP)) {
+    if (text.includes(jp)) {
+      keywords.push(...en.split(' '));
     }
   }
-
-  return tokens;
+  return keywords;
 }
-
-// 日本語のキーワードマッピング
-const JP_KEYWORD_MAP = {
-  'カフェ': ['cafe', 'lounge', 'coffee', 'relax'],
-  'チル': ['chill', 'relax', 'mellow', 'laid-back'],
-  'アコースティック': ['acoustic', 'guitar', 'folk', 'gentle'],
-  'おしゃれ': ['stylish', 'elegant', 'sophisticated'],
-  'オシャレ': ['stylish', 'elegant', 'sophisticated'],
-  '流れる': ['flowing', 'smooth', 'gentle'],
-  '曲': ['music', 'song', 'melody'],
-  '静か': ['quiet', 'calm', 'peaceful', 'soft'],
-  '激しい': ['heavy', 'aggressive', 'intense', 'powerful'],
-  'メタル': ['metal', 'heavy', 'distorted', 'aggressive'],
-  'ロック': ['rock', 'guitar', 'riff', 'drums'],
-  'ポップ': ['pop', 'catchy', 'upbeat', 'bright'],
-  'ジャズ': ['jazz', 'smooth', 'saxophone', 'piano'],
-  'エレクトロ': ['electronic', 'synth', 'dance', 'beat'],
-  'アンビエント': ['ambient', 'atmospheric', 'pad', 'space'],
-  'フォーク': ['folk', 'acoustic', 'guitar', 'gentle'],
-  'シティ': ['city', 'pop', 'urban', 'night'],
-  '夏': ['summer', 'beach', 'tropical', 'sunny'],
-  '冬': ['winter', 'snow', 'cold', 'christmas'],
-  '夜': ['night', 'nocturnal', 'dark', 'moody'],
-  '朝': ['morning', 'dawn', 'sunrise', 'bright'],
-  'カフェ': ['cafe', 'lounge', 'coffee'],
-  'チルい': ['chill', 'relaxed', 'mellow'],
-};
 
 export async function initTernlight() {
   if (isInitialized) return;
@@ -64,28 +61,18 @@ export async function initTernlight() {
     embedFn = module.embed;
     cosineSimFn = module.cosineSim;
     isInitialized = true;
-    console.log('ternlight initialized');
   } catch (error) {
-    console.warn('ternlight unavailable, using fallback mode:', error);
+    console.warn('ternlight unavailable, using fallback mode');
     fallbackMode = true;
 
+    // フォールバック: 日本語→英語変換 + キーワード一致
     embedFn = (text) => {
-      const tokens = tokenize(text);
-      console.log('Tokenized:', tokens);
-
-      // 日本語キーワードを英語トークンに変換
-      for (const [jp, enTokens] of Object.entries(JP_KEYWORD_MAP)) {
-        if (text.includes(jp)) {
-          console.log('Matched Japanese keyword:', jp, '→', enTokens);
-          tokens.push(...enTokens);
-        }
-      }
-
-      console.log('Final tokens:', tokens);
-      return tokens;
+      const enKeywords = jpToEnKeywords(text);
+      return enKeywords;
     };
 
     cosineSimFn = (a, b) => {
+      if (!a.length || !b.length) return 0;
       const setA = new Set(a);
       const setB = new Set(b);
       const intersection = [...setA].filter(x => setB.has(x));
