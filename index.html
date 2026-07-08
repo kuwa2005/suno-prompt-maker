@@ -119,6 +119,15 @@
           </div>
         </dialog>
 
+        <!-- メインプロンプト反映確認ダイアログ -->
+        <dialog id="apply-prompt-confirm-dialog" class="bg-surface border border-border rounded-lg p-6 text-text min-w-72">
+          <p class="mb-5">メインプロンプトからスライダーを設定しますか？</p>
+          <div class="flex gap-2 justify-end">
+            <button id="btn-apply-prompt-ok" class="bg-accent text-white px-4 py-1.5 rounded text-xs">はい</button>
+            <button id="btn-apply-prompt-cancel" class="bg-surface2 text-text border border-border px-4 py-1.5 rounded text-xs">いいえ</button>
+          </div>
+        </dialog>
+
         <!-- 要素候補詳細 -->
         <div class="col-span-full">
           <details class="bg-surface border border-border rounded-lg">
@@ -307,13 +316,26 @@
         window.translateMainPrompt = translateMainPrompt;
 
         // メインプロンプトから反映ボタンのイベントハンドラ
-        document.getElementById('btn-apply-prompt').addEventListener('click', async () => {
+        const applyPromptConfirmDialog = document.getElementById('apply-prompt-confirm-dialog');
+        document.getElementById('btn-apply-prompt').addEventListener('click', () => {
           const input = document.getElementById('extra').value.trim();
           if (!input) return;
-          
-          // メインプロンプトから反映する場合はジャンルも含める
+          applyPromptConfirmDialog.showModal();
+        });
+
+        document.getElementById('btn-apply-prompt-ok').addEventListener('click', async () => {
+          const input = document.getElementById('extra').value.trim();
           await autoSetWeights(input, window.weightSliders, window.updateWeightLabels, false);
+          applyPromptConfirmDialog.close();
           window.showToast('メインプロンプトからスライダーを設定しました');
+        });
+
+        document.getElementById('btn-apply-prompt-cancel').addEventListener('click', () => {
+          applyPromptConfirmDialog.close();
+        });
+
+        applyPromptConfirmDialog.addEventListener('click', (e) => {
+          if (e.target === applyPromptConfirmDialog) applyPromptConfirmDialog.close();
         });
 
         // 履歴検索のイベントハンドラ
