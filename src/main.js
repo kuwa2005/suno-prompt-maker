@@ -2,6 +2,7 @@
 // Suno Prompt Maker - メインアプリ（Tailwind CSS対応）
 // ============================================================
 
+import './styles.css';
 import { initTernlight, translateMainPrompt, isFallbackMode } from './ternlight-engine.js';
 import { buildTagIndex } from './tag-index.js';
 import { createSearchBox, filterTagElements } from './semantic-search.js';
