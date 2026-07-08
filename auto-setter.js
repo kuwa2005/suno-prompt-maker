@@ -1,13 +1,13 @@
-import { searchTags, extractCategoriesDirectly, isFallbackMode } from './tag-index.js';
+import { searchTags, extractCategoriesWithTranslation, isFallbackMode } from './tag-index.js';
 
-export function autoSetWeights(inputText, weightSliders, updateWeightLabels) {
+export async function autoSetWeights(inputText, weightSliders, updateWeightLabels) {
   let categoryScores = {};
 
   if (isFallbackMode()) {
-    // フォールバックモード: 日本語からカテゴリを直接抽出
-    categoryScores = extractCategoriesDirectly(inputText);
+    // フォールバックモード: 翻訳機能付きのカテゴリ抽出
+    categoryScores = await extractCategoriesWithTranslation(inputText);
 
-    // 日本語キーワードから英語トークンを生成して検索
+    // 英語トークンで追加検索
     const enTokens = [];
     for (const [catId, score] of Object.entries(categoryScores)) {
       const cat = CATEGORIES[catId];
@@ -17,7 +17,6 @@ export function autoSetWeights(inputText, weightSliders, updateWeightLabels) {
       }
     }
 
-    // 英語トークンで追加検索
     if (enTokens.length > 0) {
       const enQuery = enTokens.join(' ');
       const results = searchTags(enQuery, 50);

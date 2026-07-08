@@ -359,12 +359,12 @@
         }
         
         // AI反映ボタンのイベントハンドラ
-        document.getElementById('btn-ai-set').addEventListener('click', () => {
+        document.getElementById('btn-ai-set').addEventListener('click', async () => {
           const input = document.getElementById('ai-input').value.trim();
           if (!input) return;
           
           // weightSliders と updateWeightLabels は app.js のグローバル変数
-          autoSetWeights(input, window.weightSliders, window.updateWeightLabels);
+          await autoSetWeights(input, window.weightSliders, window.updateWeightLabels);
           window.showToast('AIで設定を反映しました');
         });
 

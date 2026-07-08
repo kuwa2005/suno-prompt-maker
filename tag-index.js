@@ -1,4 +1,4 @@
-import { embedText, cosineSimilarity, isFallbackMode, extractCategoriesDirectly } from './ternlight-engine.js';
+import { embedText, cosineSimilarity, isFallbackMode, extractCategoriesWithTranslation } from './ternlight-engine.js';
 
 let tagIndex = null;
 const CACHE_KEY = 'suno_tag_vectors';
@@ -45,4 +45,4 @@ export function searchTags(query, topK = 10) {
   return results.slice(0, topK);
 }
 
-export { isFallbackMode, extractCategoriesDirectly };
+export { isFallbackMode, extractCategoriesWithTranslation };
