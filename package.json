@@ -1,0 +1,22 @@
+{
+  "name": "suno-prompt-maker",
+  "version": "1.0.0",
+  "description": "Suno AI 向けのプロンプトメーカー。ブラウザで動く静的 Web アプリです。",
+  "main": "app.js",
+  "scripts": {
+    "build": "tailwindcss -i ./input.css -o ./styles.css --minify",
+    "dev": "tailwindcss -i ./input.css -o ./styles.css --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kuwa2005/suno-prompt-maker.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.3.2",
+    "tailwindcss": "^4.3.2"
+  }
+}
+}
