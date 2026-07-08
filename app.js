@@ -153,6 +153,7 @@
   btnRow.innerHTML =
     '<span class="text-xs text-text-dim">※ 合計が100%になるように自動調整されます</span>' +
     '<div class="flex gap-2">' +
+    '<button id="btn-apply-prompt" class="bg-accent text-white px-4 py-1.5 rounded text-xs hover:bg-accent-hover transition-colors">メインプロンプトから反映</button>' +
     '<button id="btn-random-weight" class="bg-surface2 text-text border border-border px-4 py-1.5 rounded text-xs hover:bg-border transition-colors">ランダム設定</button>' +
     '<button id="btn-reset-weight" class="bg-surface2 text-text border border-border px-4 py-1.5 rounded text-xs hover:bg-border transition-colors">リセット</button>' +
     '</div>';
