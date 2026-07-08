@@ -161,11 +161,30 @@ export function isFallbackMode() {
 
 // Chrome Translator API を使用した翻訳付きのカテゴリ抽出
 export async function extractCategoriesWithTranslation(text) {
-  // まずフォールバックマッピングで試行
-  const fallbackResult = extractCategoriesFromFallback(text);
+  // 日本語テキストの場合はフォールバックマッピングを試行
+  const hasJapanese = /[\u3040-\u309f\u30a0-\u30ff\u4e00-\u9faf]/.test(text);
+  const hasEnglish = /[a-zA-Z]/.test(text);
 
-  // Chrome Translator API が利用可能なら翻訳を試行
-  if (translatorReady) {
+  let result = {};
+
+  // 日本語が含まれる場合
+  if (hasJapanese) {
+    result = extractCategoriesFromFallback(text);
+  }
+
+  // 英語が含まれる場合、英語テキストからカテゴリを抽出
+  if (hasEnglish) {
+    const enResult = extractCategoriesFromEnText(text);
+    // 結果をマージ（大きい方を優先）
+    for (const [catId, score] of Object.entries(enResult)) {
+      if (!result[catId] || result[catId] < score) {
+        result[catId] = score;
+      }
+    }
+  }
+
+  // Chrome Translator API が利用可能なら翻訳を試行（日本語のみ）
+  if (hasJapanese && translatorReady) {
     const enText = await translateJpToEn(text);
     if (enText) {
       console.log('Translated:', enText);
@@ -177,7 +196,7 @@ export async function extractCategoriesWithTranslation(text) {
     }
   }
 
-  return fallbackResult;
+  return result;
 }
 
 // フォールバックマッピングからカテゴリを抽出
