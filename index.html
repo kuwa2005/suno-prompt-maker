@@ -26,9 +26,15 @@
       }
     }
   </script>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="/styles.css">
 </head>
 <body class="bg-bg text-text min-h-screen leading-relaxed transition-colors duration-200">
+  <div id="ai-loading" class="hidden fixed inset-0 z-[10000] flex items-center justify-center bg-bg/80 backdrop-blur-sm">
+    <div class="bg-surface border border-border rounded-lg px-6 py-4 text-center shadow-lg max-w-sm">
+      <p id="ai-loading-message" class="text-sm text-text">AIエンジンを読み込み中...</p>
+      <p id="ai-loading-note" class="hidden text-xs text-text-dim mt-2 leading-relaxed">初回起動時のみ行われます。2回目以降はブラウザ内のキャッシュから読み込むため、すぐに使えます。</p>
+    </div>
+  </div>
   <!-- ヘッダー -->
   <header class="sticky top-0 z-50 bg-bg border-b border-border px-6 py-4">
     <div class="flex justify-between items-center mb-3">
@@ -71,9 +77,14 @@
           </div>
         </div>
 
-        <!-- 生成ボタン -->
+        <!-- プロンプト生成 -->
         <div class="col-span-full">
-          <button id="btn-generate" class="bg-accent text-white px-6 py-2.5 rounded-md text-sm font-medium hover:bg-accent-hover transition-colors">プロンプトを生成</button>
+          <label class="block text-sm text-text-dim mb-2">プロンプト生成</label>
+          <div class="flex flex-row gap-3">
+            <button id="btn-generate" class="flex-1 bg-surface2 text-text border border-border px-5 py-2.5 rounded-md text-sm font-medium hover:bg-border transition-colors">プロンプト生成（ランダム）</button>
+            <button id="btn-generate-ai-weighted" class="flex-1 bg-accent text-white px-5 py-2.5 rounded-md text-sm font-medium hover:bg-accent-hover transition-colors">プロンプト生成(AI)</button>
+            <button id="btn-generate-ai-direct" class="hidden flex-1 bg-surface2 text-text border border-border px-5 py-2.5 rounded-md text-sm font-medium hover:bg-border transition-colors">(AI) プロンプトを直接生成</button>
+          </div>
         </div>
 
         <!-- 出力エリア -->
@@ -121,7 +132,7 @@
 
         <!-- メインプロンプト反映確認ダイアログ -->
         <dialog id="apply-prompt-confirm-dialog" class="bg-surface border border-border rounded-lg p-6 text-text min-w-72">
-          <p class="mb-5">メインプロンプトからスライダーを設定しますか？</p>
+          <p class="mb-5">(AI)メインプロンプトからスライダーを設定しますか？</p>
           <div class="flex gap-2 justify-end">
             <button id="btn-apply-prompt-ok" class="bg-accent text-white px-4 py-1.5 rounded text-xs">はい</button>
             <button id="btn-apply-prompt-cancel" class="bg-surface2 text-text border border-border px-4 py-1.5 rounded text-xs">いいえ</button>
@@ -178,8 +189,8 @@
           <h3 class="text-lg font-semibold mb-3">概要</h3>
           <p class="text-sm text-text-dim leading-relaxed">
             Suno Prompt Maker は、Suno AI 向けのプロンプトメーカーです。
-            35カテゴリの音楽要素をランダムに組み合わせて、プロンプトを自動生成します。
-            ブラウザで動く静的Webアプリであり、サーバー不要で動作します。
+            38カテゴリの音楽要素を組み合わせてプロンプトを生成できます。
+            すべての処理はブラウザ内で完結する静的Webアプリであり、サーバー不要で動作します。
           </p>
         </div>
 
@@ -187,7 +198,12 @@
         <div class="mb-8">
           <h3 class="text-lg font-semibold mb-3">主な機能</h3>
           <ul class="text-sm text-text-dim leading-relaxed list-disc list-inside space-y-1">
-            <li>35カテゴリの音楽要素をランダムに組み合わせたプロンプト生成</li>
+            <li>38カテゴリの音楽要素（ジャンル、ムード、楽器など）</li>
+            <li>メインプロンプト + 要素の割合（スライダー）による細かい調整</li>
+            <li>プロンプト生成（ランダム）/ プロンプト生成(AI)</li>
+            <li>(AI) メインプロンプトから反映 — メインプロンプトの内容に基づきスライダーを自動設定</li>
+            <li>セマンティック検索 — 各カテゴリの候補を意味ベースで絞り込み</li>
+            <li>履歴の意味ベース検索</li>
             <li>64テンプレート（プロンプト64種 + 歌詞構造15種）</li>
             <li>重み付きラウンドロビンでカテゴリごとの出現割合を制御</li>
             <li>履歴管理で過去のプロンプトを保存・呼び出し</li>
@@ -208,24 +224,50 @@
             </thead>
             <tbody>
               <tr class="border-b border-border">
-                <td class="py-2">HTML5</td>
+                <td class="py-2">
+                  <a href="https://developer.mozilla.org/en-US/docs/Web/HTML" target="_blank" rel="noopener noreferrer"
+                    class="text-accent hover:text-accent-hover transition-colors">HTML5</a> /
+                  <a href="https://developer.mozilla.org/en-US/docs/Web/CSS" target="_blank" rel="noopener noreferrer"
+                    class="text-accent hover:text-accent-hover transition-colors">CSS3</a> /
+                  <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" target="_blank" rel="noopener noreferrer"
+                    class="text-accent hover:text-accent-hover transition-colors">JavaScript</a> (vanilla)
+                </td>
                 <td class="py-2">標準仕様</td>
               </tr>
               <tr class="border-b border-border">
-                <td class="py-2">CSS3</td>
-                <td class="py-2">標準仕様</td>
-              </tr>
-              <tr class="border-b border-border">
-                <td class="py-2">JavaScript (vanilla)</td>
-                <td class="py-2">標準仕様</td>
-              </tr>
-              <tr class="border-b border-border">
-                <td class="py-2">Tailwind CSS</td>
+                <td class="py-2">
+                  <a href="https://github.com/tailwindlabs/tailwindcss" target="_blank" rel="noopener noreferrer"
+                    class="text-accent hover:text-accent-hover transition-colors">Tailwind CSS</a>（CDN版）
+                </td>
                 <td class="py-2">MIT License</td>
+              </tr>
+              <tr class="border-b border-border">
+                <td class="py-2">
+                  <a href="https://vite.dev" target="_blank" rel="noopener noreferrer"
+                    class="text-accent hover:text-accent-hover transition-colors">Vite</a>（本番ビルド）
+                </td>
+                <td class="py-2">MIT License</td>
+              </tr>
+              <tr class="border-b border-border">
+                <td class="py-2">
+                  <a href="https://github.com/soycaporal/ternlight" target="_blank" rel="noopener noreferrer"
+                    class="text-accent hover:text-accent-hover transition-colors">ternlight</a>（@ternlight/base）— デバイス上の埋め込みベクトル生成（WASM）
+                </td>
+                <td class="py-2">MIT License</td>
+              </tr>
+              <tr class="border-b border-border">
+                <td class="py-2">
+                  <a href="https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API" target="_blank" rel="noopener noreferrer"
+                    class="text-accent hover:text-accent-hover transition-colors">IndexedDB</a> — タグインデックスのローカルキャッシュ
+                </td>
+                <td class="py-2">ブラウザ標準API</td>
               </tr>
               <tr>
-                <td class="py-2">ternlight</td>
-                <td class="py-2">MIT License</td>
+                <td class="py-2">
+                  <a href="https://developer.chrome.com/docs/ai/translator-api" target="_blank" rel="noopener noreferrer"
+                    class="text-accent hover:text-accent-hover transition-colors">Chrome Translator API</a>（オプション、日本語表示用）
+                </td>
+                <td class="py-2">ブラウザ標準API</td>
               </tr>
             </tbody>
           </table>
@@ -261,7 +303,7 @@
             </p>
             <p>
               <strong>ローカルストレージ:</strong> プロンプトの履歴とテーマ設定は、
-              ブラウザのローカルストレージに保存されます。このデータは您的のデバイス内にのみ存在し、
+              ブラウザのローカルストレージに保存されます。このデータはあなたのデバイス内にのみ存在し、
               外部に送信されることはありません。
             </p>
             <p>
@@ -269,10 +311,29 @@
               このCookieは365日間有効です。
             </p>
             <p>
-              <strong>AI機能:</strong> ternlightを使用したAI機能は、すべてブラウザ内で完結します。
-              入力されたテキストが外部サーバーに送信されることはありません。
+              <strong>AI機能:</strong> ternlight（WASM）による埋め込みベクトル生成、スライダー自動設定、
+              セマンティック検索、プロンプト生成(AI) はすべてブラウザ内で完結します。
+              入力されたテキストや生成結果が外部サーバーに送信されることはありません。
+              日本語表示には Chrome Translator API をオプションで利用します（対応ブラウザのみ）。
+            </p>
+            <p>
+              <strong>IndexedDB:</strong> AI機能で使うタグの埋め込みベクトルは IndexedDB にキャッシュされ、
+              次回以降の起動を高速化します。キャッシュはデバイス内にのみ保存され、外部に送信されることはありません。
+              データ更新後や不具合時は、下の「ローカルキャッシュ再構築」で削除・再構築できます。
             </p>
           </div>
+        </div>
+
+        <!-- ローカルキャッシュ -->
+        <div class="mb-8">
+          <h3 class="text-lg font-semibold mb-3">ローカルキャッシュ</h3>
+          <p class="text-sm text-text-dim leading-relaxed mb-3">
+            タグインデックスのIndexedDBキャッシュを削除し、再構築します。
+          </p>
+          <button id="btn-rebuild-tag-cache" type="button"
+            class="bg-surface2 text-text border border-border px-4 py-1.5 rounded text-xs hover:bg-border transition-colors">
+            ローカルキャッシュ再構築
+          </button>
         </div>
       </div>
     </section>
@@ -284,81 +345,6 @@
   <!-- 上へ戻るボタン -->
   <button id="scroll-top" class="fixed bottom-8 right-8 w-12 h-12 rounded-full border-none bg-accent text-white text-xl cursor-pointer shadow-lg hover:bg-accent-hover hover:-translate-y-0.5 transition-all z-[1000] hidden" aria-label="上へ戻る">&#9650;</button>
 
-  <script src="data.js"></script>
-  <script src="app.js"></script>
-  <script type="module" src="ternlight-engine.js"></script>
-  <script type="module">
-    import { initTernlight, isFallbackMode, translateMainPrompt } from './ternlight-engine.js';
-    import { buildTagIndex } from './tag-index.js';
-    import { createSearchBox, filterTagElements } from './semantic-search.js';
-    import { autoSetWeights } from './auto-setter.js';
-    import { searchHistory, buildHistoryIndex, clearHistoryIndex } from './history-search.js';
-
-    function addSearchBoxes() {
-      for (const [catId, cat] of Object.entries(CATEGORIES)) {
-        const tagContainer = document.getElementById(catId + '-select');
-        if (!tagContainer) continue;
-
-        const searchBox = createSearchBox(catId, (results) => {
-          filterTagElements(tagContainer.querySelectorAll('.tag'), results);
-        });
-        tagContainer.parentElement.insertBefore(searchBox, tagContainer);
-      }
-    }
-
-    async function initializeAI() {
-      try {
-        await initTernlight();
-        await buildTagIndex();
-        addSearchBoxes();
-
-        // translateMainPrompt をグローバルに公開
-        window.translateMainPrompt = translateMainPrompt;
-
-        // メインプロンプトから反映ボタンのイベントハンドラ
-        const applyPromptConfirmDialog = document.getElementById('apply-prompt-confirm-dialog');
-        document.getElementById('btn-apply-prompt').addEventListener('click', () => {
-          const input = document.getElementById('extra').value.trim();
-          if (!input) return;
-          applyPromptConfirmDialog.showModal();
-        });
-
-        document.getElementById('btn-apply-prompt-ok').addEventListener('click', async () => {
-          const input = document.getElementById('extra').value.trim();
-          await autoSetWeights(input, window.weightSliders, window.updateWeightLabels, false);
-          applyPromptConfirmDialog.close();
-          window.showToast('メインプロンプトからスライダーを設定しました');
-        });
-
-        document.getElementById('btn-apply-prompt-cancel').addEventListener('click', () => {
-          applyPromptConfirmDialog.close();
-        });
-
-        applyPromptConfirmDialog.addEventListener('click', (e) => {
-          if (e.target === applyPromptConfirmDialog) applyPromptConfirmDialog.close();
-        });
-
-        // 履歴検索のイベントハンドラ
-        document.getElementById('history-search').addEventListener('input', (e) => {
-          const query = e.target.value.trim();
-          const history = JSON.parse(localStorage.getItem('suno_prompt_history') || '[]');
-
-          if (query.length === 0) {
-            window.renderHistory();
-            return;
-          }
-
-          const results = searchHistory(query, history);
-          window.renderHistory(results.map(r => r.entry));
-        });
-
-        console.log('AI features ready');
-      } catch (error) {
-        console.warn('AI features unavailable:', error);
-      }
-    }
-
-    initializeAI();
-  </script>
+  <script type="module" src="/src/main.js"></script>
 </body>
 </html>

@@ -2299,3 +2299,9 @@ const LYRIC_TEMPLATES = [
     structure: '[Intro]\n[Insturumental]\n[Scene 1]\n[Insturumental]\n[Verse 1]\n[Insturumental]\n[Pre-Chorus]\n[Insturumental]\n[Chorus]\n[Insturumental]\n[Scene 2]\n[Insturumental]\n[Verse 2]\n[Insturumental]\n[Chorus]\n[Insturumental]\n[Bridge]\n[Insturumental]\n[Climax]\n[Insturumental]\n[Final Chorus]\n[Insturumental]\n[Outro]',
   },
 ];
+
+// Vite バンドル後も既存コードが global を参照できるよう公開
+globalThis.PROMPT_DATA = PROMPT_DATA;
+globalThis.CATEGORIES = CATEGORIES;
+globalThis.TEMPLATES = TEMPLATES;
+globalThis.LYRIC_TEMPLATES = LYRIC_TEMPLATES;

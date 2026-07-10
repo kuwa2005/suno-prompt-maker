@@ -11,8 +11,9 @@
 #      ./deploy-ftp.sh --dry-run ← 確認のみ（転送しない）
 #
 # 【フロー】
+#   npm run build で dist/ を生成
 #   → リモートに suno-prompt-maker/ があれば suno-prompt-maker.NNN へリネーム（バックアップ）
-#   → ローカルの data.js / app.js / index.html / styles.css をリモートへミラー転送
+#   → ローカルの dist/ 内容をリモートへミラー転送
 #
 # 【バックアップ番号】
 #   suno-prompt-maker.000, suno-prompt-maker.001, … の最大番号 + 1。999 まで。
@@ -36,8 +37,9 @@ FTP_USER="your_account"             # FTPユーザー名
 FTP_PASS="your_password"            # FTPパスワード
 FTP_REMOTE_PATH="/public_html/example.com/suno-prompt-maker"  # リモートパス
 
-# --- 転送対象ファイル -------------------------------------------------------
-UPLOAD_FILES=(index.html data.js app.js styles.css)
+# --- 転送対象（ビルド成果物） -------------------------------------------------
+UPLOAD_DIR="dist"
+UPLOAD_FILES=(index.html assets/ styles.css favicon.ico)
 
 # --- 転送オプション（通常はそのままで可） -----------------------------------
 FTP_PASSIVE_MODE="${FTP_PASSIVE_MODE:-1}"
@@ -132,10 +134,14 @@ fi
 # 転送対象の存在チェック
 MISSING=()
 for f in "${UPLOAD_FILES[@]}"; do
-  [[ ! -f "${SCRIPT_DIR}/${f}" ]] && MISSING+=("$f")
+  if [[ -d "${SCRIPT_DIR}/${UPLOAD_DIR}/${f}" ]]; then
+    continue
+  fi
+  [[ ! -f "${SCRIPT_DIR}/${UPLOAD_DIR}/${f}" ]] && MISSING+=("${UPLOAD_DIR}/${f}")
 done
 if [[ ${#MISSING[@]} -gt 0 ]]; then
   echo "エラー: 転送対象ファイルが見つかりません: ${MISSING[*]}" >&2
+  echo "  先に npm run build を実行してください。" >&2
   exit 1
 fi
 
@@ -269,7 +275,7 @@ upload_with_lftp() {
     printf ' --exclude %q' 'node_modules/'
     # それ以外はすべて除外
     printf ' --exclude %q' '*'
-    printf ' %q %q\n' "${SCRIPT_DIR}/" "${REMOTE_PATH}/"
+    printf ' %q %q\n' "${SCRIPT_DIR}/${UPLOAD_DIR}/" "${REMOTE_PATH}/"
 
     echo "bye"
   } >"$lftp_script"

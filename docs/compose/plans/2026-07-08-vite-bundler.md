@@ -1,3 +1,7 @@
+## ステータス
+
+**完了（2026-07-10）** — `feature/vite-wasm` で Vite 6、`src/` 構成、`@ternlight/base` WASM バンドル、IndexedDB タグキャッシュ、FTP は `dist/` 転送に更新済み。
+
 # Vite バンドラー導入計画
 
 ## 目標

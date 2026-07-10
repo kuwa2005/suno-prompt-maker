@@ -2,9 +2,6 @@
 // Suno Prompt Maker - メインアプリ（Tailwind CSS対応）
 // ============================================================
 
-(function () {
-  'use strict';
-
   // --- Utility ---
   function pick(arr) {
     return arr[Math.floor(Math.random() * arr.length)];
@@ -153,7 +150,7 @@
   btnRow.innerHTML =
     '<span class="text-xs text-text-dim">※ 合計が100%になるように自動調整されます</span>' +
     '<div class="flex gap-2">' +
-    '<button id="btn-apply-prompt" class="bg-accent text-white px-4 py-1.5 rounded text-xs hover:bg-accent-hover transition-colors">メインプロンプトから反映</button>' +
+    '<button id="btn-apply-prompt" class="bg-accent text-white px-4 py-1.5 rounded text-xs hover:bg-accent-hover transition-colors">(AI) メインプロンプトから反映</button>' +
     '<button id="btn-random-weight" class="bg-surface2 text-text border border-border px-4 py-1.5 rounded text-xs hover:bg-border transition-colors">ランダム設定</button>' +
     '<button id="btn-reset-weight" class="bg-surface2 text-text border border-border px-4 py-1.5 rounded text-xs hover:bg-border transition-colors">リセット</button>' +
     '</div>';
@@ -236,7 +233,7 @@
 
     // 日本語が含まれていたら英語に翻訳
     if (extra) {
-      extra = await translateMainPrompt(extra);
+      extra = await window.translateMainPrompt(extra);
       parts.push(extra);
     }
 
@@ -595,4 +592,29 @@
   window.weightSliders = weightSliders;
   window.updateWeightLabels = updateWeightLabels;
   window.renderHistory = renderHistory;
-})();
+  window.sunoWeightIds = WEIGHT_IDS;
+  window.sunoSelMap = SEL_MAP;
+  window.sunoGetWeights = getWeights;
+  window.sunoShowOutput = showOutput;
+  window.sunoRandomFill = randomFill;
+
+  window.sunoGetRawWeightSum = function () {
+    return WEIGHT_IDS.reduce((sum, id) => sum + parseInt(weightSliders[id].value, 10), 0);
+  };
+
+  window.sunoApplyTags = function (tagsByCategory) {
+    for (const id of WEIGHT_IDS) {
+      SEL_MAP[id].clear();
+    }
+    for (const [catId, tags] of Object.entries(tagsByCategory || {})) {
+      if (SEL_MAP[catId] && tags.length > 0) {
+        SEL_MAP[catId].setFromValue(tags);
+      }
+    }
+  };
+
+  window.sunoClearAllTags = function () {
+    for (const id of WEIGHT_IDS) {
+      SEL_MAP[id].clear();
+    }
+  };

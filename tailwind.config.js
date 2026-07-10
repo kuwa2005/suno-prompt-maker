@@ -2,12 +2,7 @@
 module.exports = {
   content: [
     "./index.html",
-    "./app.js",
-    "./ternlight-engine.js",
-    "./tag-index.js",
-    "./semantic-search.js",
-    "./auto-setter.js",
-    "./history-search.js",
+    "./src/**/*.js",
   ],
   theme: {
     extend: {

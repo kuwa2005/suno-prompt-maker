@@ -34,7 +34,6 @@ async function initTranslator() {
 
 // 日本語テキストを英語に翻訳
 async function translateJpToEn(text) {
-  // ユーザージェスチャー時に初期化を試行
   if (!translatorReady && !translatorInitializing) {
     await initTranslator();
   }
@@ -100,38 +99,24 @@ const JP_FALLBACK_MAP = {
   'リズム': 'rhythm beat',
 };
 
-// 日本語テキストを英語トークンに変換
 function jpToEnTokens(text) {
   const tokens = [];
-
-  // フォールバックマッピングからキーワード抽出
   for (const [jp, en] of Object.entries(JP_FALLBACK_MAP)) {
     if (text.includes(jp)) {
       tokens.push(...en.split(' '));
     }
   }
-
   return tokens;
 }
 
-export async function initTernlight() {
-  if (isInitialized) return;
-
-  // Translator API を並行で初期化
-  initTranslator();
-
-  // ternlight はバンドラーが必要なため、フォールバックモードで動作
+function setupFallbackEmbed() {
   fallbackMode = true;
-
   embedFn = (text) => {
-    // 英語テキストの場合は単語を直接返す
     if (/[a-zA-Z]/.test(text) && !/[\u3040-\u309f\u30a0-\u30ff\u4e00-\u9faf]/.test(text)) {
       return text.toLowerCase().split(/[\s,]+/).filter(w => w.length > 2);
     }
-    // 日本語テキストの場合はマッピングを使用
     return jpToEnTokens(text);
   };
-
   cosineSimFn = (a, b) => {
     if (!a.length || !b.length) return 0;
     const setA = new Set(a);
@@ -139,6 +124,28 @@ export async function initTernlight() {
     const intersection = [...setA].filter(x => setB.has(x));
     return intersection.length / Math.max(setA.size, setB.size, 1);
   };
+}
+
+function setupWasmEmbed(embed, cosineSim) {
+  fallbackMode = false;
+  embedFn = (text) => embed(text);
+  cosineSimFn = (a, b) => cosineSim(a, b);
+}
+
+export async function initTernlight() {
+  if (isInitialized) return;
+
+  initTranslator();
+
+  try {
+    const { embed, cosineSim, engineInfo } = await import('@ternlight/base');
+    embed('warmup');
+    console.log('ternlight WASM ready:', engineInfo());
+    setupWasmEmbed(embed, cosineSim);
+  } catch (error) {
+    console.warn('ternlight WASM unavailable, using fallback mode:', error);
+    setupFallbackEmbed();
+  }
 
   isInitialized = true;
 }
@@ -161,41 +168,32 @@ export function isFallbackMode() {
   return fallbackMode;
 }
 
-// 日本語テキストを英語に翻訳（メインプロンプト用）
 export async function translateMainPrompt(text) {
   if (!text) return text;
 
-  // 日本語が含まれているか確認
   const hasJapanese = /[\u3040-\u309f\u30a0-\u30ff\u4e00-\u9faf]/.test(text);
   if (!hasJapanese) return text;
 
-  // Chrome Translator API が利用可能なら翻訳
   const translated = await translateJpToEn(text);
   if (translated) {
     return translated;
   }
 
-  // 翻訳不可の場合は元のテキストを返す
   return text;
 }
 
-// Chrome Translator API を使用した翻訳付きのカテゴリ抽出
 export async function extractCategoriesWithTranslation(text) {
-  // 日本語テキストの場合はフォールバックマッピングを試行
   const hasJapanese = /[\u3040-\u309f\u30a0-\u30ff\u4e00-\u9faf]/.test(text);
   const hasEnglish = /[a-zA-Z]/.test(text);
 
   let result = {};
 
-  // 日本語が含まれる場合
   if (hasJapanese) {
     result = extractCategoriesFromFallback(text);
   }
 
-  // 英語が含まれる場合、英語テキストからカテゴリを抽出
   if (hasEnglish) {
     const enResult = extractCategoriesFromEnText(text);
-    // 結果をマージ（大きい方を優先）
     for (const [catId, score] of Object.entries(enResult)) {
       if (!result[catId] || result[catId] < score) {
         result[catId] = score;
@@ -203,13 +201,10 @@ export async function extractCategoriesWithTranslation(text) {
     }
   }
 
-  // Chrome Translator API が利用可能なら翻訳を試行（日本語のみ）
   if (hasJapanese && translatorReady) {
     const enText = await translateJpToEn(text);
     if (enText) {
-      console.log('Translated:', enText);
       const translatedResult = extractCategoriesFromEnText(enText);
-      // 翻訳結果を優先
       if (Object.keys(translatedResult).length > 0) {
         return translatedResult;
       }
@@ -219,13 +214,10 @@ export async function extractCategoriesWithTranslation(text) {
   return result;
 }
 
-// フォールバックマッピングからカテゴリを抽出
 function extractCategoriesFromFallback(text) {
   const found = {};
 
-  // 日本語→カテゴリの直接マッピング
   const jpCategoryMap = {
-    // ジャンル
     'カフェ': ['style', 'mood'],
     'チル': ['style', 'mood'],
     'アコースティック': ['instrument', 'genre'],
@@ -250,8 +242,6 @@ function extractCategoriesFromFallback(text) {
     'ソウル': ['genre'],
     'ファンク': ['genre'],
     'ディスコ': ['genre'],
-
-    // 時代・質感
     '80年代': ['era', '年代80'],
     '80s': ['era', '年代80'],
     '70年代': ['era'],
@@ -259,8 +249,6 @@ function extractCategoriesFromFallback(text) {
     'レトロ': ['era'],
     'ヴィンテージ': ['era'],
     'ノスタルジック': ['era', 'mood'],
-
-    // 雰囲気
     'おしゃれ': ['style', 'mood'],
     'オシャレ': ['style', 'mood'],
     'リラックス': ['style', 'mood'],
@@ -279,8 +267,6 @@ function extractCategoriesFromFallback(text) {
     '海': ['mood'],
     'ダーク': ['style', 'mood'],
     'キラキラ': ['style', 'mood'],
-
-    // 演奏・楽器
     'ピアノ': ['instrument'],
     'ギター': ['instrument'],
     'ベース': ['instrument'],
@@ -289,8 +275,6 @@ function extractCategoriesFromFallback(text) {
     'ボーカル': ['vocal'],
     'コーラス': ['vocal'],
     '和楽器': ['instrument'],
-
-    // その他
     '流れる': ['style'],
     '踊る': ['style'],
     '曲': ['structure'],
@@ -326,12 +310,10 @@ function extractCategoriesFromFallback(text) {
   return found;
 }
 
-// 英語テキストからカテゴリを抽出
 function extractCategoriesFromEnText(enText) {
   const lower = enText.toLowerCase();
   const found = {};
 
-  // カテゴリ固有のキーワードマッピング
   const categoryMap = {
     'genre': {
       keywords: ['pop', 'rock', 'jazz', 'electronic', 'dance', 'hip hop', 'r&b', 'country', 'folk', 'blues', 'classical', 'ambient', 'reggae', 'metal', 'punk', 'soul', 'funk', 'disco', 'house', 'techno', 'trance', 'dubstep', 'drum and bass', 'synthwave', 'city pop', 'lo-fi', 'bossa nova', 'samba', 'tango', 'acoustic', 'indie', 'alternative', 'experimental', 'world', 'latin', 'lounge', 'cafe', 'music', 'song', 'beat', 'bass', 'drum', 'guitar', 'piano', 'synth', 'vocal', 'rap', 'choir', 'orchestra', 'symphony', 'band'],
@@ -379,7 +361,6 @@ function extractCategoriesFromEnText(enText) {
     },
   };
 
-  // 各カテゴリのキーワードと一致数をカウント（重み付き）
   for (const [catId, config] of Object.entries(categoryMap)) {
     let matchCount = 0;
     for (const kw of config.keywords) {
@@ -392,24 +373,12 @@ function extractCategoriesFromEnText(enText) {
     }
   }
 
-  // カテゴリ名そのものが含まれている場合
   for (const [catId, cat] of Object.entries(CATEGORIES)) {
     if (lower.includes(cat.name.toLowerCase())) {
       if (!found[catId]) found[catId] = 0;
-      found[catId] += 5; // カテゴリ名一致は高スコア
+      found[catId] += 5;
     }
   }
 
   return found;
-}
-
-// キーワードからカテゴリIDを検索
-function findCategoryByKeyword(keyword) {
-  const lower = keyword.toLowerCase();
-  for (const [catId, cat] of Object.entries(CATEGORIES)) {
-    if (cat.name.toLowerCase().includes(lower)) return catId;
-    if (cat.label && cat.label.toLowerCase().includes(lower)) return catId;
-  }
-  // デフォルトで genre を返す
-  return 'genre';
 }
