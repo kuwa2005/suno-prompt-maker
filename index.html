@@ -37,9 +37,12 @@
   </div>
   <!-- ヘッダー -->
   <header class="sticky top-0 z-50 bg-bg border-b border-border px-6 py-4">
-    <div class="flex justify-between items-center mb-3">
-      <h1 class="text-xl font-bold">Suno Prompt Maker</h1>
-      <button id="theme-toggle" class="w-9 h-9 rounded-full border border-border flex items-center justify-center cursor-pointer text-xl hover:border-accent hover:text-accent transition-all" aria-label="テーマ切替">
+    <div class="flex justify-between items-start mb-3 gap-4">
+      <div class="min-w-0 flex-1">
+        <h1 class="text-xl font-bold">Suno Prompt Maker</h1>
+        <p class="text-sm text-text-dim mt-1 leading-relaxed">Suno Prompt Maker は、Suno AI 向けのローカルAI内蔵プロンプトメーカーです。音楽要素を組み合わせてプロンプトを生成できます。すべての処理はブラウザ内で完結する静的Webアプリであり、外部にデータを送信しません。</p>
+      </div>
+      <button id="theme-toggle" class="w-9 h-9 shrink-0 rounded-full border border-border flex items-center justify-center cursor-pointer text-xl hover:border-accent hover:text-accent transition-all" aria-label="テーマ切替">
         <span class="icon-bulb-on">&#9728;</span>
         <span class="icon-bulb-off" style="display:none;">&#9790;</span>
       </button>
@@ -81,9 +84,9 @@
         <div class="col-span-full">
           <label class="block text-sm text-text-dim mb-2">プロンプト生成</label>
           <div class="flex flex-row gap-3">
-            <button id="btn-generate" class="flex-1 bg-surface2 text-text border border-border px-5 py-2.5 rounded-md text-sm font-medium hover:bg-border transition-colors">プロンプト生成（ランダム）</button>
-            <button id="btn-generate-ai-weighted" class="flex-1 bg-accent text-white px-5 py-2.5 rounded-md text-sm font-medium hover:bg-accent-hover transition-colors">プロンプト生成(AI)</button>
-            <button id="btn-generate-ai-direct" class="hidden flex-1 bg-surface2 text-text border border-border px-5 py-2.5 rounded-md text-sm font-medium hover:bg-border transition-colors">(AI) プロンプトを直接生成</button>
+            <button id="btn-generate" class="btn btn-secondary flex-1">プロンプト生成（ランダム）</button>
+            <button id="btn-generate-ai-weighted" class="btn btn-primary flex-1">プロンプト生成(AI)</button>
+            <button id="btn-generate-ai-direct" class="btn btn-secondary flex-1 hidden">(AI) プロンプトを直接生成</button>
           </div>
         </div>
 
@@ -92,8 +95,8 @@
           <div class="flex justify-between items-center mb-3">
             <h3 class="text-sm text-text-dim">生成されたプロンプト</h3>
             <div class="flex items-center gap-2">
-              <button id="btn-copy" class="bg-surface2 border border-border rounded w-7 h-7 flex items-center justify-center cursor-pointer hover:bg-accent hover:border-accent hover:text-white transition-all" title="コピー">&#128203;</button>
-              <button id="btn-save" class="bg-surface2 border border-border rounded w-7 h-7 flex items-center justify-center cursor-pointer text-xs hover:bg-accent hover:border-accent hover:text-white transition-all" title="履歴に保存">&#128190;</button>
+              <button id="btn-copy" class="btn btn-icon btn-secondary" title="コピー">&#128203;</button>
+              <button id="btn-save" class="btn btn-icon btn-secondary" title="履歴に保存">&#128190;</button>
               <span id="char-count" class="text-xs text-text-dim tabular-nums"></span>
             </div>
           </div>
@@ -107,8 +110,8 @@
             <input type="text" id="history-comment" placeholder="どんな曲だったかメモ" class="w-full bg-surface2 border border-border text-text px-3 py-2 rounded-md text-sm">
           </div>
           <div class="flex gap-2 justify-end">
-            <button id="btn-dialog-cancel" class="bg-surface2 text-text border border-border px-4 py-1.5 rounded text-xs">キャンセル</button>
-            <button id="btn-dialog-save" class="bg-accent text-white px-4 py-1.5 rounded text-xs">保存</button>
+            <button id="btn-dialog-cancel" class="btn btn-secondary">キャンセル</button>
+            <button id="btn-dialog-save" class="btn btn-primary">保存</button>
           </div>
         </dialog>
 
@@ -116,8 +119,8 @@
         <dialog id="random-confirm-dialog" class="bg-surface border border-border rounded-lg p-6 text-text min-w-72">
           <p class="mb-5">割合をランダムに設定しますか？</p>
           <div class="flex gap-2 justify-end">
-            <button id="btn-random-ok" class="bg-accent text-white px-4 py-1.5 rounded text-xs">はい</button>
-            <button id="btn-random-cancel" class="bg-surface2 text-text border border-border px-4 py-1.5 rounded text-xs">いいえ</button>
+            <button id="btn-random-ok" class="btn btn-primary">はい</button>
+            <button id="btn-random-cancel" class="btn btn-secondary">いいえ</button>
           </div>
         </dialog>
 
@@ -125,8 +128,8 @@
         <dialog id="reset-confirm-dialog" class="bg-surface border border-border rounded-lg p-6 text-text min-w-72">
           <p class="mb-5">全カテゴリを0%にリセットしますか？</p>
           <div class="flex gap-2 justify-end">
-            <button id="btn-reset-ok" class="bg-accent text-white px-4 py-1.5 rounded text-xs">はい</button>
-            <button id="btn-reset-cancel" class="bg-surface2 text-text border border-border px-4 py-1.5 rounded text-xs">いいえ</button>
+            <button id="btn-reset-ok" class="btn btn-primary">はい</button>
+            <button id="btn-reset-cancel" class="btn btn-secondary">いいえ</button>
           </div>
         </dialog>
 
@@ -134,8 +137,8 @@
         <dialog id="apply-prompt-confirm-dialog" class="bg-surface border border-border rounded-lg p-6 text-text min-w-72">
           <p class="mb-5">(AI)メインプロンプトからスライダーを設定しますか？</p>
           <div class="flex gap-2 justify-end">
-            <button id="btn-apply-prompt-ok" class="bg-accent text-white px-4 py-1.5 rounded text-xs">はい</button>
-            <button id="btn-apply-prompt-cancel" class="bg-surface2 text-text border border-border px-4 py-1.5 rounded text-xs">いいえ</button>
+            <button id="btn-apply-prompt-ok" class="btn btn-primary">はい</button>
+            <button id="btn-apply-prompt-cancel" class="btn btn-secondary">いいえ</button>
           </div>
         </dialog>
 
@@ -174,7 +177,7 @@
           class="w-full bg-surface border border-border text-text px-3 py-2 rounded-md text-sm">
       </div>
       <div class="mb-4">
-        <button id="btn-clear-history" class="bg-danger text-white px-4 py-1.5 rounded text-xs">履歴を全削除</button>
+        <button id="btn-clear-history" class="btn btn-danger">履歴を全削除</button>
       </div>
       <div id="history-list" class="flex flex-col gap-3"></div>
     </section>
@@ -330,8 +333,7 @@
           <p class="text-sm text-text-dim leading-relaxed mb-3">
             タグインデックスのIndexedDBキャッシュを削除し、再構築します。
           </p>
-          <button id="btn-rebuild-tag-cache" type="button"
-            class="bg-surface2 text-text border border-border px-4 py-1.5 rounded text-xs hover:bg-border transition-colors">
+          <button id="btn-rebuild-tag-cache" type="button" class="btn btn-secondary">
             ローカルキャッシュ再構築
           </button>
         </div>

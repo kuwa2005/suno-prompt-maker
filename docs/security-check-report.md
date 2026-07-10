@@ -42,4 +42,6 @@
 
 ## 6. 自動テスト
 
-`npm test` = Node ユニットテスト + Playwright E2E（プレビューサーバー上で UI / WASM 読み込み確認）。
+`npm test` = Node ユニットテスト（回帰含む）。`npm run test:e2e` = Playwright（プレビューサーバー上で UI / WASM 読み込み確認）。
+
+**2026-07-10 再スキャン:** `npm run build` 後の `dist/` に FTP/パスワード文字列なしを確認。

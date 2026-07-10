@@ -68,6 +68,43 @@ input[type="range"]::-moz-range-thumb {
   border: none;
 }
 
+/* --- ボタン（全バリアント共通: アクセント紫 + 白文字） --- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.5rem;
+  padding: 0 1rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.25rem;
+  cursor: pointer;
+  border: 1px solid var(--accent);
+  background-color: var(--accent);
+  color: #fff;
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s, opacity 0.15s;
+}
+.btn:hover:not(:disabled) {
+  background-color: var(--accent-hover);
+  border-color: var(--accent-hover);
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.btn-primary,
+.btn-secondary,
+.btn-danger {
+  /* ベース .btn と同じアクセントスタイル（クラス名は互換のため残す） */
+}
+.btn-icon {
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  border-radius: 0.25rem;
+}
+
 /* --- タグ --- */
 .tag {
   background: var(--tag-bg);

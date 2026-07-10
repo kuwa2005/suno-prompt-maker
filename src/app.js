@@ -150,9 +150,9 @@
   btnRow.innerHTML =
     '<span class="text-xs text-text-dim">※ 合計が100%になるように自動調整されます</span>' +
     '<div class="flex gap-2">' +
-    '<button id="btn-apply-prompt" class="bg-accent text-white px-4 py-1.5 rounded text-xs hover:bg-accent-hover transition-colors">(AI) メインプロンプトから反映</button>' +
-    '<button id="btn-random-weight" class="bg-surface2 text-text border border-border px-4 py-1.5 rounded text-xs hover:bg-border transition-colors">ランダム設定</button>' +
-    '<button id="btn-reset-weight" class="bg-surface2 text-text border border-border px-4 py-1.5 rounded text-xs hover:bg-border transition-colors">リセット</button>' +
+    '<button id="btn-apply-prompt" class="btn btn-primary">(AI) メインプロンプトから反映</button>' +
+    '<button id="btn-random-weight" class="btn btn-secondary">ランダム設定</button>' +
+    '<button id="btn-reset-weight" class="btn btn-secondary">リセット</button>' +
     '</div>';
   weightPanel.appendChild(btnRow);
 
@@ -466,7 +466,7 @@
       const card = document.createElement('div');
       card.className = 'relative bg-surface border border-border rounded-lg p-4 cursor-pointer hover:border-accent transition-all';
       card.innerHTML =
-        '<button class="card-copy-btn absolute top-2 right-2 bg-surface2 border border-border rounded w-7 h-7 flex items-center justify-center cursor-pointer hover:bg-accent hover:border-accent hover:text-white transition-all" title="コピー">&#128203;</button>' +
+        '<button class="card-copy-btn btn btn-icon btn-secondary absolute top-2 right-2" title="コピー">&#128203;</button>' +
         '<h4 class="text-sm font-bold mb-1">' + escapeHtml(tpl.name) + '</h4>' +
         '<p class="text-xs text-text-dim">' + escapeHtml(tpl.description) + '</p>' +
         '<p class="mt-1 text-accent text-xs">' + escapeHtml(tpl.prompt) + '</p>';
@@ -508,7 +508,7 @@
       const card = document.createElement('div');
       card.className = 'relative bg-surface border border-border rounded-lg p-4 cursor-pointer hover:border-accent transition-all';
       card.innerHTML =
-        '<button class="card-copy-btn absolute top-2 right-2 bg-surface2 border border-border rounded w-7 h-7 flex items-center justify-center cursor-pointer hover:bg-accent hover:border-accent hover:text-white transition-all" title="コピー">&#128203;</button>' +
+        '<button class="card-copy-btn btn btn-icon btn-secondary absolute top-2 right-2" title="コピー">&#128203;</button>' +
         '<h4 class="text-sm font-bold mb-1">' + escapeHtml(tpl.name) + '</h4>' +
         '<p class="text-xs text-text-dim mb-2">' + escapeHtml(tpl.description) + '</p>' +
         '<pre class="text-xs text-text-dim bg-bg border border-border rounded p-2 whitespace-pre-wrap overflow-x-auto max-h-40">' + escapeHtml(tpl.structure) + '</pre>';
@@ -553,7 +553,7 @@
       const dateStr = date.toLocaleDateString('ja-JP') + ' ' + date.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
       const commentHtml = entry.comment ? '<h4 class="text-sm font-bold mb-1">' + escapeHtml(entry.comment) + '</h4>' : '';
       card.innerHTML =
-        '<button class="card-copy-btn absolute top-2 right-2 bg-surface2 border border-border rounded w-7 h-7 flex items-center justify-center cursor-pointer hover:bg-accent hover:border-accent hover:text-white transition-all" title="コピー">&#128203;</button>' +
+        '<button class="card-copy-btn btn btn-icon btn-secondary absolute top-2 right-2" title="コピー">&#128203;</button>' +
         commentHtml +
         '<p class="text-sm text-text-dim">' + escapeHtml(entry.promptLine) + '</p>' +
         '<div class="text-xs text-text-dim mt-1">' + dateStr + '</div>';
