@@ -135,12 +135,16 @@ npm run check    # src/*.js の構文チェック
 
 ```bash
 npm run build
-# deploy-ftp.sh を deploy-ftp.sh.example から作成・編集（リポジトリ非コミット）
+# 認証情報（どちらか一方で可・deploy.env 推奨）
+cp deploy.env.example deploy.env   # FTP_* を記入（git にコミットしない）
+# または cp deploy-ftp.sh.example deploy-ftp.sh を編集
 ./deploy-ftp.sh
 ./deploy-ftp.sh --dry-run   # 確認のみ
 ```
 
 FTP スクリプトは **`dist/`** の内容をアップロードします。
+
+**認証情報をリポジトリにコミットしないこと**（`deploy-ftp.sh` / `deploy.env` は `.gitignore` 済み。`git add -f` 禁止）。過去にパスワードが Git 履歴に含まれていた場合は **FTP パスワードをローテーション**してください。詳細は [docs/deploy-credentials.md](docs/deploy-credentials.md)。
 
 ## カテゴリ追加方法
 

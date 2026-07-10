@@ -1,5 +1,9 @@
 node_modules/
+
+# Local FTP credentials (never commit). Do not bypass with: git add -f deploy-ftp.sh
 deploy-ftp.sh
 deploy.env
+*.local.env
+
 dist/
 .vite/

@@ -4,11 +4,11 @@
 # =============================================================================
 #
 # 【使い方】
-#   1. このファイルを deploy-ftp.sh にコピー
-#   2. 下記「接続設定」の 4 行（FTP_SERVER / FTP_USER / FTP_PASS / FTP_REMOTE_PATH）
-#      を自分のサーバー情報に書き換えてから実行してください。
-#   3. ./deploy-ftp.sh           ← 差分転送
-#      ./deploy-ftp.sh --dry-run ← 確認のみ（転送しない）
+#   推奨: cp deploy.env.example deploy.env を編集（deploy.env は .gitignore）
+#   代替: cp deploy-ftp.sh.example deploy-ftp.sh を編集（deploy-ftp.sh も .gitignore）
+#   deploy.env がある場合はスクリプト内のプレースホルダーより deploy.env を優先します。
+#   ./deploy-ftp.sh           ← 差分転送
+#   ./deploy-ftp.sh --dry-run ← 確認のみ（転送しない）
 #
 # 【フロー】
 #   npm run build で dist/ を生成
@@ -22,20 +22,14 @@
 #   lftp（バックアップ退避の mv と mirror 再帰） … sudo apt install lftp
 #
 # 【セキュリティ】
-#   本スクリプトに本番の FTP パスワードを書く場合、公開リポジトリへ
-#   コミットしないでください（プライベート運用・ローカルのみ推奨）。
-#   誤コミット防止のため、実パスワード入りの deploy-ftp.sh は .gitignore 推奨。
+#   deploy-ftp.sh / deploy.env はリポジトリにコミットしない（.gitignore 済み）。
+#   git add -f deploy-ftp.sh は使わないこと。
+#   過去にパスワードが履歴に含まれていた場合は FTP パスワードをローテーションすること。
 # =============================================================================
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
-
-# --- 接続設定（初回前に必ず編集） -------------------------------------------
-FTP_SERVER="ftp.example.com"        # FTPサーバーホスト
-FTP_USER="your_account"             # FTPユーザー名
-FTP_PASS="your_password"            # FTPパスワード
-FTP_REMOTE_PATH="/public_html/example.com/suno-prompt-maker"  # リモートパス
 
 # --- 転送対象（ビルド成果物） -------------------------------------------------
 UPLOAD_DIR="dist"
@@ -110,11 +104,11 @@ elif [[ -f "$ENV_FILE" ]]; then
   set -a; source "$ENV_FILE"; set +a
 fi
 
-# 環境変数・deploy.env による上書き
-FTP_SERVER="${FTP_SERVER:-}"
-FTP_USER="${FTP_USER:-}"
-FTP_PASS="${FTP_PASS:-}"
-FTP_REMOTE_PATH="${FTP_REMOTE_PATH:-}"
+# --- 接続設定（deploy.env 未使用時のプレースホルダー） -------------------------
+FTP_SERVER="${FTP_SERVER:-ftp.example.com}"
+FTP_USER="${FTP_USER:-your_account}"
+FTP_PASS="${FTP_PASS:-your_password}"
+FTP_REMOTE_PATH="${FTP_REMOTE_PATH:-/public_html/example.com/suno-prompt-maker}"
 
 is_placeholder_config() {
   [[ -z "$FTP_SERVER" || "$FTP_SERVER" == "ftp.example.com" ]] && return 0
@@ -126,8 +120,8 @@ is_placeholder_config() {
 
 if is_placeholder_config; then
   echo "エラー: FTP 接続設定が未編集です。" >&2
-  echo "  deploy-ftp.sh 先頭の次の 4 行を自分のサーバー情報に書き換えてください:" >&2
-  echo "    FTP_SERVER, FTP_USER, FTP_PASS, FTP_REMOTE_PATH" >&2
+  echo "  推奨: cp deploy.env.example deploy.env を編集するか、" >&2
+  echo "  deploy-ftp.sh.example を deploy-ftp.sh にコピーして FTP_* を設定してください。" >&2
   exit 1
 fi
 
