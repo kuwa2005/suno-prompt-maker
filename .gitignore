@@ -7,3 +7,7 @@ deploy.env
 
 dist/
 .vite/
+
+# Playwright
+test-results/
+playwright-report/
